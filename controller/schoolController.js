@@ -9,7 +9,7 @@ const date = new Date();
 
 exports.signUp = async (req, res) => {
   const generateID = function () {
-    return Math.floor(Math.random() * 10000);
+    return Math.floor(1000 + Math.random() * 9000); // Generate a 4-digit ID
   };
   try {
     const {
@@ -20,30 +20,40 @@ exports.signUp = async (req, res) => {
       schoolEmail,
       schoolPassword,
     } = req.body;
-    if (
-      !schoolName ||
-      !schoolType ||
-      !schoolAddress ||
-      !schoolPhone ||
-      !schoolEmail ||
-      !schoolPassword
-    ) {
+
+    // Validate required fields
+    if (!schoolName || !schoolType || !schoolAddress || !schoolPhone || !schoolEmail || !schoolPassword) {
       return res.status(400).json({
         status: "Bad Request",
-        message: "please All Field Are Required",
+        message: "All fields are required",
       });
     }
+
+    // Validate email format (basic validation)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(schoolEmail)) {
+      return res.status(400).json({
+        status: "Bad Request",
+        message: "Invalid email format",
+      });
+    }
+
+    // Check for existing school
     const existingSchool = await schoolModel.findOne({ schoolEmail });
     if (existingSchool) {
       return res.status(400).json({
         status: "Bad Request",
-        message: "This School Already Exist",
+        message: "This school already exists",
       });
     }
+
+    // Hash password
     const saltedPassword = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(schoolPassword, saltedPassword);
     let schoolID = generateID();
-    const data = new schoolModel({
+
+    // Create new school record
+    const newData = new schoolModel({
       schoolName,
       schoolType,
       schoolAddress,
@@ -52,27 +62,32 @@ exports.signUp = async (req, res) => {
       schoolPassword: hashedPassword,
       schoolID,
     });
+
+    // Generate verification token
     const userToken = jwt.sign(
-      { id: data.schoolID, email: data.schoolEmail },
+      { id: newData.schoolID, email: newData.schoolEmail },
       process.env.JWT_SECRET,
       { expiresIn: "30min" }
     );
 
-    const verifyLink = `${req.protocol}://${req.get(
-      "host"
-    )}/api/v1/school/verify/${userToken}`;
+    // Prepare verification email
+    const verifyLink = `${req.protocol}://${req.get("host")}/api/v1/school/verify/${userToken}`;
     let mailOptions = {
-      email: data.schoolEmail,
+      email: newData.schoolEmail,
       subject: "Email Verification",
-      html: signUpTemplate(verifyLink, `${data.schoolName}`),
+      html: signUpTemplate(verifyLink, `${newData.schoolName}`),
     };
-    await data.save();
+    // Save school and send verification email
+    await newData.save();
     await sendMail(mailOptions);
 
     res.status(201).json({
       status: "ok",
-      message: "Registration complete",
-      data,
+      message: "Registration complete. Please verify your email.",
+      newData,
+      userToken
+    
+      
     });
   } catch (error) {
     res.status(500).json({
@@ -114,9 +129,10 @@ exports.signIn = async (req, res) => {
     }
     const token = jwt.sign(
       {
-        userId: existingSchool.schoolID,
+        userId: existingSchool._id,
         email: existingSchool.schoolEmail,
         name: existingSchool.schoolName,
+        role: existingSchool.role,
       },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
@@ -134,85 +150,175 @@ exports.signIn = async (req, res) => {
   }
 };
 
-exports.getOneStudent = async (req, res) => {
-  try {
-    const { schoolID, studentID } = req.params;
-    const school = await schoolModel.findById(schoolID);
-    if (!school) {
-      return res.status(404).json({
-        status: "Not Found",
-        message: "school not found",
-      });
-    }
-    const students = school.students.find(
-      (student) => student.id === studentID
-    );
-    if (!students) {
-      return res.status(404).json({
-        status: "Not Found",
-        message: "student not found",
-      });
-    }
-    res.status(200).json({
-      status: "Request ok",
-      message: `This is ${students.firstName} info`,
-      data: students,
-    });
-  } catch (error) {
-    es.status(500).json({
-      status: "server error",
-      message: error.message,
-    });
+// exports.getOneStudent = async (req, res) => {
+//   try {
+//     const { studentID } = req.body;
+//     const { schoolID } = req.user;
+//     const school = await schoolModel.findOne({schoolID});
+//     if (!school) {
+//       return res.status(404).json({
+//         status: "Not Found",
+//         message: "student not found",
+//       });
+//     }
+//     // const students = school.students.find(
+//     //   (student) => student._id === studentID
+//     // );
+//     // if (!students) {
+//     //   return res.status(404).json({
+//     //     status: "Not Found",
+//     //     message: "student not found",
+//     //   });
+//     // }
+
+//     const student = await 
+//     res.status(200).json({
+//       status: "Request ok",
+//       message: `This is ${students.firstName} info`,
+//       data: students,
+//     });
+//   } catch (error) {
+//     es.status(500).json({
+//       status: "server error",
+//       message: error.message,
+//     });
+//   }
+// };
+
+exports.getOneStudent = async (req,res)=>{
+ try {
+  const {studentID} = req.body
+  const getOne= await studentModel.findOne({studentID})
+  if(!getOne){
+    return res.status(404).json({message:'student not found or registered'})
   }
-};
-exports.getOneTeacher = async (req, res) => {
+  return res.status(200).json({message:'below is the student you request for',data:getOne})
+  
+ } catch (error) {
+  res.status(500).json(error.message)
+ }
+}
+
+// exports.getOneTeacher = async (req, res) => {
+//   try {
+//     const { teacherID } = req.params;
+//     const { schoolID } = req.user;
+
+//     const school = await schoolModel.findOne({ schoolID });
+//     if (!school) {
+//       return res.status(404).json({
+//         status: "Not Found",
+//         message: "School not found",
+//       });
+//     }
+//     const teachers = school.teachers.find(
+//       (teacher) => teacher._id === teacherID
+//     );
+
+//     if (!teachers) {
+//       return res.status(404).json({
+//         status: "Not Found",
+//         message: "Teacher not found in the specified school",
+//       });
+//     }
+//     return res.status(200).json({
+//       status: "Request ok",
+//       message: `This is ${teachers.firstName} info`,
+//       data: teachers,
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       status: "Server error",
+//       message: error.message,
+//     });
+//   }
+// };
+
+exports.getAllTeachers = async (req, res) => {
   try {
-    const { schoolID, teacherID } = req.params;
-    const school = await schoolModel.findById({ schoolID });
+    const { schoolID } = req.user;
+    const school = await schoolModel.findOne({schoolID});
     if (!school) {
       return res.status(404).json({
-        status: "Not Found",
+        status: "Not found",
         message: "School not found",
       });
     }
-    const teachers = school.teachers.find(
-      (teacher) => teacher.id === teacherID
-    );
-
-    if (!teachers) {
+    const teachers = school.teachers;
+    if (teachers.length <= 0) {
       return res.status(404).json({
-        status: "Not Found",
-        message: "Teacher not found in the specified school",
+        status: "Not found",
+        message: "No teachers found in this school",
       });
     }
-    return res.status(200).json({
-      status: "Request ok",
-      message: `This is ${teachers.firstName} info`,
+    res.status(200).json({
+      status: "OK",
+      message: `Found ${teachers.length} registered teachers in the school`,
       data: teachers,
     });
   } catch (error) {
-    return res.status(500).json({
+    res.status(500).json({
       status: "Server error",
       message: error.message,
     });
   }
 };
 
-exports.getAll = async (req, res) => {
+exports.getAllStudents = async (req, res) => {
   try {
-    const existingUser = await schoolModel.find();
-    if (existingUser.length <= 0) {
+    const { schoolID } = req.user;
+    const school = await schoolModel.findOne({schoolID});
+    if (!school) {
       return res.status(404).json({
         status: "Not found",
-        message: `No available existingUser`,
-      });
-    } else {
-      res.status(200).json({
-        status: "OK",
-        message: `Kindly find the ${existingUser.length} registered teachers & students below`,
-        data: existingUser,
+        message: "School not found",
       });
     }
+    const students = school.students;
+    if (students.length <= 0) {
+      return res.status(404).json({
+        status: "Not found",
+        message: "No students found in this school",
+      });
+    }
+    res.status(200).json({
+      status: "OK",
+      message: `Found ${students.length} registered students in the school`,
+      data: students
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Server error",
+      message: error.message,
+    });
+  }
+};
+
+exports.deleteTeacher = async (req, res) => {
+  try {
+    const { teacherID } = req.params;
+    const { schoolID } = req.user;
+    const school = await schoolModel.findOne({schoolID});
+    if (!school) {
+      return res.status(404).json({
+        status: "Not found",
+        message: "School not found",
+      });
+    }
+    const teacherIndex = school.teachers.findIndex(teacher => teacher.id === teacherID);
+    if (teacherIndex === -1) {
+      return res.status(404).json({
+        status: "Not found",
+        message: "Teacher not found in this school",
+      });
+    }
+    school.teachers.splice(teacherIndex, 1);
+    await school.save()
+    res.status(200).json({
+      status: "OK",
+      message: `Teacher with ID ${teacherID} has been deleted successfully`,
+    });
+
   } catch (error) {
     res.status(500).json({
       status: "Server error",
@@ -224,45 +330,37 @@ exports.getAll = async (req, res) => {
 exports.deleteStudent = async (req, res) => {
   try {
     const { studentID } = req.params;
-    const existingUser = await schoolModel.findOne({ studentID });
-    if (!existingUser) {
+    const { schoolID } = req.user;
+    const school = await schoolModel.findOne({schoolID});
+    if (!school) {
       return res.status(404).json({
         status: "Not found",
-        messgae: "Student not found",
+        message: "School not found",
       });
     }
+    const studentIndex = school.students.findIndex(student => student._id === studentID);
+    if (studentIndex === -1) {
+      return res.status(404).json({
+        status: "Not found",
+        message: "Teacher not found in this school",
+      });
+    }
+    school.students.splice(studentIndex, 1);
+    await school.save()
     res.status(200).json({
       status: "OK",
-      message: "Student deleted successfully",
+      message: `Student with ID ${studentID} has been deleted successfully`,
     });
+
   } catch (error) {
     res.status(500).json({
-      status: "server error",
+      status: "Server error",
       message: error.message,
     });
   }
 };
-exports.deleteTeacher = async (req, res) => {
-  try {
-    const { teacherID } = req.params;
-    const existingUser = await schoolModel.findOne({ teacherID });
-    if (!existingUser) {
-      return res.status(404).json({
-        status: "Not found",
-        messgae: "Teacher not found",
-      });
-    }
-    res.status(200).json({
-      status: "OK",
-      message: "Teacher deleted successfully",
-    });
-  } catch (error) {
-    res.status(500).json({
-      status: "server error",
-      message: error.message,
-    });
-  }
-};
+
+
 exports.verifyEmail = async (req, res) => {
   try {
     const { token } = req.params;
@@ -294,5 +392,102 @@ exports.verifyEmail = async (req, res) => {
       status: "server error",
       message: error.message,
     });
+  }
+};
+
+exports.resendVerificationEmail = async (req, res) => {
+  try {
+    const { schoolEmail } = req.body;
+    const school = await schoolModel.findOne({ schoolEmail });
+    if (!school) {
+      return res.status(404).json({
+        message: "school not found",
+      });
+    }
+    if (school.isVerified) {
+      return res.status(400).json({
+        message: "school already verified",
+      });
+    }
+    const token = jwt.sign(
+      { email: school.schoolEmail },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "20mins",
+      }
+    );
+    const verifyLink = `${req.protocol}://${req.get(
+      "host"
+    )}/api/v1/school/resend-verify/${token}`;
+    let mailOptions = {
+      email: school.schoolEmail,
+      subject: "Verification email",
+      html: verifyTemplate(verifyLink, school.schoolName),
+    };
+    await sendMail(mailOptions);
+    res.status(200).json({
+      message: "Verification email resent successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+exports.forgetPassword = async (req, res) => {
+  try {
+    const { schoolEmail } = req.body;
+    const school = await schoolModel.findOne({ schoolEmail });
+    if (!school) {
+      res.status(404).json({
+        message: "school not found",
+      });
+    }
+    const resetToken = jwt.sign(
+      { email: school.schoolEmail },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "20mins",
+      }
+    );
+    let mailOptions = {
+      email: school.schoolEmail,
+      subject: "password reset",
+      html: `please click the link to reset your password: <a href="${
+        req.protocol
+      }://${req.get(
+        "host"
+      )}/api/v1/School/reset-password/${resetToken}>Reset password</a>link expiers in 30min"`,
+    };
+    await sendMail(mailOptions);
+    res.status(200).json({
+      message: "password reset email sent succesfully",
+    });
+  } catch (error) {
+    res.status(500).json(error.message);
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { schoolPassword } = req.body;
+    const { schoolEmail } = jwt.verify(token, process.env.JWT_SECRET);
+    const school = await schoolModel.findOne({ schoolEmail });
+    if (!school) {
+      res.status(404).json({
+        message: "user not found",
+      });
+    }
+    const saltedRound = await bcrypt.genSalt(10);
+    const hashed = await bcrypt.hash(schoolPassword, saltedRound);
+    school.schoolPassword = hashed;
+    await school.save();
+    res.status(200).json({
+      message: "password reset successfully",
+    });
+  } catch (error) {
+    res.status(500).json(error.message);
   }
 };

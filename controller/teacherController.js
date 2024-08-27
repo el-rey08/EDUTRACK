@@ -113,6 +113,7 @@ exports.signIn = async (req, res) => {
       });
     }
 
+
     if (!existingTeacher.isVerified) {
       return res.status(400).json({
         status: "Bad request",
@@ -122,17 +123,17 @@ exports.signIn = async (req, res) => {
     }
     const token = jwt.sign(
       {
-        userId: existingTeacher.teacherID,
+        userId: existingTeacher._id,
         email: existingTeacher.email,
         name: existingTeacher.firstName,
+        role: existingTeacher.role,
       },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
     res.status(200).json({
       message: `${existingTeacher.firstName} is logged in`,
-      data: existingTeacher,
-      token,
+      data: existingTeacher,token,
     });
   } catch (error) {
     res.status(500).json({
@@ -146,24 +147,23 @@ exports.verifyEmail = async (req, res) => {
   try {
     const { token } = req.params;
     const { email } = jwt.verify(token, process.env.JWT_SECRET);
-    const existingUser = await studentModel.findOne({ email });
-    if (!existingUser) {
+    const teacher = await teacherModel.findOne({ email });
+    if (!teacher) {
       return res.status(404).json({
         status: "Not Found",
         message: "Student Not found",
       });
     }
-    if (existingUser.isVerified) {
+    if (teacher.isVerified) {
       return res.status(400).json({
         status: "Bad Request",
-        message: "Student Already verified",
+        message: "Teacher Already verified",
       });
     }
-    existingUser.isVerified = true;
-    await existingUser.save();
+    await teacher.save();
     res.status(200).json({
       status: "ok",
-      message: "Student verified successfully",
+      message: "Teacher verified successfully",
     });
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
@@ -173,6 +173,118 @@ exports.verifyEmail = async (req, res) => {
       status: "server error",
       message: error.message,
     });
+  }
+};
+
+exports.resendVerificationEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const teacher = await teacherModel.findOne({ email });
+    if (!teacher) {
+      return res.status(404).json({
+        message: "school not found",
+      });
+    }
+    if (school.isVerified) {
+      return res.status(400).json({
+        message: "school already verified",
+      });
+    }
+    const token = jwt.sign(
+      { email: teacher.email},
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "20mins",
+      }
+    );
+    const verifyLink = `${req.protocol}://${req.get(
+      "host"
+    )}/api/v1/teacher/resend-verify/${token}`;
+    let mailOptions = {
+      email: teacher.email,
+      subject: "Verification email",
+      html: verifyTemplate(verifyLink, teacher.firstName),
+    };
+    await sendMail(mailOptions);
+    res.status(200).json({
+      message: "Verification email resent successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+exports.forgetPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const teacher = await teacherModel.findOne({ email });
+    if (!teacher) {
+      res.status(404).json({
+        message: "school not found",
+      });
+    }
+    const resetToken = jwt.sign(
+      { email: teacher.email },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "20mins",
+      }
+    );
+    let mailOptions = {
+      email: teacher.email,
+      subject: "password reset",
+      html: `please click the link to reset your password: <a href="${
+        req.protocol
+      }://${req.get(
+        "host"
+      )}/api/v1/teacher/reset-password/${resetToken}>Reset password</a>link expiers in 30min"`,
+    };
+    await sendMail(mailOptions);
+    res.status(200).json({
+      message: "password reset email sent succesfully",
+    });
+  } catch (error) {
+    res.status(500).json(error.message);
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+    const { email } = jwt.verify(token, process.env.JWT_SECRET);
+    const teacher = await teacherModel.findOne({ email });
+    if (!teacher) {
+      res.status(404).json({
+        message: "user not found",
+      });
+    }
+    const saltedRound = await bcrypt.genSalt(10);
+    const hashed = await bcrypt.hash(password, saltedRound);
+    teacher.password = hashed;
+    await teacher.save();
+    res.status(200).json({
+      message: "password reset successfully",
+    });
+  } catch (error) {
+    res.status(500).json(error.message);
+  }
+};
+
+
+
+exports.getOneTeacher = async (req, res) => {
+  try {
+    const { teacherID } = req.body;
+    const getOne = await teacherModel.findOne({ teacherID });
+    if (!getOne) {
+      return res.status(404).json({ message: 'Teacher not found or registered' });
+    }
+    return res.status(200).json({ message: 'Below is the teacher you requested', data: getOne });
+  } catch (error) {
+    res.status(500).json(error.message);
   }
 };
 

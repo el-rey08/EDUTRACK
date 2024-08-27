@@ -64,6 +64,13 @@ exports.singUpVlidator = async (req, res, next) => {
           "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
         "string.empty": "Password cannot be empty",
       }),
+      class: joiValidation.string()
+    .required()
+    .pattern(/^(Primary [1-6]|JSS [1-3]|SS [1-3])$/)
+    .messages({
+      'string.pattern.name': 'Class must be one of the following: Primary 1-6, JSS 1-3, or SS 1-3.',
+      'any.required': 'Class is required.'
+    }),
       address:joiValidation.string().required(),
         // age:joiValidator.number().required().integer(),
         gender:joiValidation.string().required().valid("male","female"),
@@ -99,6 +106,7 @@ exports.logInValidator = async (req, res, next) => {
     //   "string.email":"invalid email format. please enter a valid email address",
     // }),
     studentID:joiValidation.number().integer().required(),
+    
 
     password: joiValidation
       .string()
