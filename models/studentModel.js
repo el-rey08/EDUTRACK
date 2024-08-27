@@ -1,18 +1,27 @@
 const date = new Date()
 const mongoose = require('mongoose')
-const studentSchema = mongoose.Schema({
+const studentSchema = new mongoose.Schema({
  firstName:{
-    type:String,
+    type:String,set: (entry) => {
+      const capitalize =
+      entry.charAt(0).toUpperCase() + entry.slice(1).toLowerCase();
+        return capitalize;},
     require:true,
     trim:true
  },
  surnName:{
-    type:String,
+    type:String,set: (entry) => {
+      const capitalize =
+      entry.charAt(0).toUpperCase() + entry.slice(1).toLowerCase();
+        return capitalize;},
     require:true,
     trim:true
  },
  lastName:{
-    type:String,
+    type:String,set: (entry) => {
+      const capitalize =
+      entry.charAt(0).toUpperCase() + entry.slice(1).toLowerCase();
+        return capitalize;},
     require:true,
     trim:true
  },
@@ -52,7 +61,11 @@ const studentSchema = mongoose.Schema({
  isVerified:{
    type:Boolean,
    default:false
+ },
+ school:{
+  type:mongoose.Schema.Types.ObjectId,
+  ref:"school"
  }
-})
+},{timestamps:true})
 const studentModel = mongoose.model('student', studentSchema)
 module.exports = studentModel

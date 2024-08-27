@@ -1,6 +1,6 @@
 const date = new Date()
 const mongoose = require('mongoose')
-const adminSchema = mongoose.Schema({
+const schoolSchema = new mongoose.Schema({
 schoolName:{
     type:String,
     require:true,
@@ -28,10 +28,23 @@ schoolID:{
     type:Number,
     unique:true
 },
-password:{
+schoolPassword:{
     type:String,
     require:true
 },
-})
-const adminModel = mongoose.model('school', adminSchema)
-module.exports = adminModel
+students:[{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:'student'
+}],
+teachers:[{
+    type:mongoose.Schema.Types.ObjectId,
+    ref: 'teacher'
+}],
+isVerified:{
+    type:Boolean,
+    default:false
+  }
+
+},{timestamps:true})
+const schoolModel = mongoose.model('school', schoolSchema)
+module.exports = schoolModel

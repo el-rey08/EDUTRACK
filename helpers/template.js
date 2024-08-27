@@ -107,7 +107,7 @@ const signUpTemplate = (verifyLink, firstName) => {
 
     `
   };
-  
+
   
   const verifyTemplate = (verifyLink, firstName) => {
       return `
@@ -263,5 +263,5 @@ const signUpTemplate = (verifyLink, firstName) => {
     `;
   };
   
-  module.exports = { signUpTemplate, verifyTemplate, forgotPasswordTemplate};
+  module.exports = { signUpTemplate, verifyTemplate, forgotPasswordTemplate,};
   

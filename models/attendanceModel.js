@@ -5,6 +5,6 @@ const attendanceSchema = mongoose.Schema({
   logInTime: { type: Date },
   logOutTime: { type: Date },
   status: { type: String, enum: ["present", "absent", "late"] },
-});
+},{timestamps:true});
 const attendanceModel = mongoose.model("attendance", attendanceSchema);
 module.exports = attendanceModel;

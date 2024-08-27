@@ -1,0 +1,12 @@
+const express = require('express')
+const { signUpValidation, logInValidator } = require('../middleware/schoolValidation')
+const { signUp, signIn, getOneStudent, getOneTeacher, getAll, deleteStudent, deleteTeacher } = require('../controller/schoolController')
+const router = express.Router()
+router.post('/sign_up',signUpValidation, signUp)
+router.post('/log-in',logInValidator,signIn)
+router.get('/get-student/:schoolId/:studentID',getOneStudent)
+router.get('/get-teacher/school/:schoolID/teacher/:teacherID',getOneTeacher)
+router.get('/get-all', getAll)
+router.delete('/delete-student/:studentID',deleteStudent)
+router.delete('/delete-student/:teacherID',deleteTeacher)
+module.exports = router

@@ -1,21 +1,38 @@
-const { default: mongoose } = require('mongoose')
 const mongoose= require('mongoose')
-const teacherSchema = mongoose.Schema({
+const teacherSchema = new mongoose.Schema({
     firstName:{
-        type:String,
+        type:String,set: (entry) => {
+         const capitalize =
+         entry.charAt(0).toUpperCase() + entry.slice(1).toLowerCase();
+           return capitalize;},
         requir:true,
         trim:true
      },
      surnName:{
-        type:String,
+        type:String,set: (entry) => {
+         const capitalize =
+         entry.charAt(0).toUpperCase() + entry.slice(1).toLowerCase();
+           return capitalize;},
         requir:true,
         trim:true
      },
      lastName:{
-        type:String,
+        type:String,set: (entry) => {
+         const capitalize =
+         entry.charAt(0).toUpperCase() + entry.slice(1).toLowerCase();
+           return capitalize;},
         requir:true,
         trim:true
      },
+     email:{
+      type:String,
+   unique:true,
+   trim:true
+   },
+ password:{
+   type:String,
+   require:true
+ },
      address:{
         type:String,
         required:true
@@ -24,16 +41,16 @@ const teacherSchema = mongoose.Schema({
         type:String,
         require:true
      },
-     LGA:{
-        type:String,
-        require:true,
-     },
      gender:{
         type:String,
         require:true,
         enum:['male', 'female']
      },
-     maritalStatus:{
+     phoneNumber:{
+      type:String,
+      require:true
+     },
+    maritalStatus :{
         type:String,
         require:true,
         enum:['married', 'single', 'divorce', 'widow']
@@ -41,8 +58,20 @@ const teacherSchema = mongoose.Schema({
      teacherID:{
       type:Number,
       unique:true
+     },
+     student:{
+      type:mongoose.Schema.Types.ObjectId,
+      ref: 'student'
+     },
+     isVerified:{
+      type:Boolean,
+      default:false
+    },
+    school:{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"school"
      }
      
-})
+},{timestamps:true})
 const teacherModel = mongoose.model('teacher', teacherSchema)
 module.exports = teacherModel

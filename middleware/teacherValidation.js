@@ -65,19 +65,16 @@ exports.singUpVlidator = async (req, res, next) => {
         "string.empty": "Password cannot be empty",
       }),
       address:joiValidation.string().required(),
-        // age:joiValidator.number().required().integer(),
         gender:joiValidation.string().required().valid("male","female"),
         phoneNumber:joiValidation.string().regex(/^\d{11}$/).message('Phone number must be exactly 11 digits'),
         state:joiValidation.string().required().regex(/^[A-Za-z]+$/),
-        // LGA:joiValidation.string().required().regex(/^[A-Za-z]+$/),
-        dateOfBirth: joiValidation.string()
-        .required()
-        .pattern(/^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/[0-9]{4}$/)
-        .messages({
-          'string.pattern.base': 'Date of birth must be in the format DD/MM/YYYY.',
-          'any.required': 'Date of birth is a required field.'
-      })
-        
+        maritalStatus:joiValidation.string()
+  .required()
+  .pattern(/\b(married|single|divorce[sd]?)\b/i)
+  .messages({
+    'string.pattern.base': 'Marital status must be either "married", "single", or "divorced".',
+    'any.required': 'Marital status is required.',
+  })
       })
       
         const { error } = Schema.validate(req.body);
@@ -93,12 +90,11 @@ exports.singUpVlidator = async (req, res, next) => {
 
 exports.logInValidator = async (req, res, next) => {
   const Schema = joiValidation.object({
-    // email: joiValidation.string().email().min(7).required().messages({
-    //   "any.required": "please provide your email address",
-    //   "string.empty": "email cannot be empty",
-    //   "string.email":"invalid email format. please enter a valid email address",
-    // }),
-    studentID:joiValidation.number().integer().required(),
+    email: joiValidation.string().email().min(7).required().messages({
+      "any.required": "please provide your email address",
+      "string.empty": "email cannot be empty",
+      "string.email":"invalid email format. please enter a valid email address",
+    }),
 
     password: joiValidation
       .string()

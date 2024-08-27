@@ -2,10 +2,7 @@ const studentModel = require("../models/studentModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const sendMail = require("../helpers/email");
-const {
-  signUpTemplate,
-  verifyTemplate,
-} = require("../helpers/template");
+const { signUpTemplate, verifyTemplate } = require("../helpers/template");
 const date = new Date();
 
 exports.signUp = async (req, res) => {
@@ -43,11 +40,11 @@ exports.signUp = async (req, res) => {
       });
     }
 
-    const existingUser = await studentModel.findOne({email });
+    const existingUser = await studentModel.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
         status: "Bad request",
-        message: "This user already exists",
+        message: "This Student already exists",
       });
     }
 
@@ -58,7 +55,7 @@ exports.signUp = async (req, res) => {
       firstName,
       surnName,
       lastName,
-      email:email.toLowerCase().trim(),
+      email: email.toLowerCase().trim(),
       password: hashedPassword,
       address,
       state,
@@ -89,7 +86,7 @@ exports.signUp = async (req, res) => {
     res.status(201).json({
       status: "ok",
       message: "Registration complete",
-      data
+      data,
     });
   } catch (error) {
     res.status(500).json({
@@ -99,37 +96,32 @@ exports.signUp = async (req, res) => {
   }
 };
 
-exports.signIn = async(req, res)=>{
+exports.signIn = async (req, res) => {
   try {
-    const {studentID,
-      password,
-    }=req.body
-    const existingUser = await studentModel.findOne({studentID})
-    if(!existingUser){
+    const { studentID, password } = req.body;
+    const existingUser = await studentModel.findOne({ studentID });
+    if (!existingUser) {
       return res.status(404).json({
-        status:'Not Found',
-        message:'No user with the Above information kindly see the admin for registration'
-      })
+        status: "Not Found",
+        message:
+          "No Student with the Above information kindly see the admin for registration",
+      });
     }
-  
-    const checkPassword = await bcrypt.compare(password, existingUser.password)
-    if(!checkPassword){
+
+    const checkPassword = await bcrypt.compare(password, existingUser.password);
+    if (!checkPassword) {
       return res.status(400).json({
-        status:'Bad request',
-        message:'incorrect password please check your password'
-      })
+        status: "Bad request",
+        message: "incorrect password please check your password",
+      });
     }
-    // if(!studentID){
-    //   return res.status(400).json({
-    //     status:'Bad request',
-    //     message:'incorrect student ID'
-    //   })
-    // }
-    if(!existingUser.isVerified){
+
+    if (!existingUser.isVerified) {
       return res.status(400).json({
-        status:'Bad request',
-        message:'user not verified please check your email for verification link'
-      })
+        status: "Bad request",
+        message:
+          "Student not verified please check your email for verification link",
+      });
     }
     const token = jwt.sign(
       {
@@ -145,14 +137,36 @@ exports.signIn = async(req, res)=>{
       data: existingUser,
       token,
     });
-
   } catch (error) {
     res.status(500).json({
-      status:'server error',
-      message:error.message
-    })
+      status: "server error",
+      message: error.message,
+    });
   }
+};
+
+exports.getOne = async (req, res) => {
+  try {
+    const { studentID } = req.params;
+    const existingUser = await studentModel.findOne({ studentID });
+    if (!existingUser) {
+      return res.status(404).json({
+        status: "Not Found",
+        message: "Student Not found",
+      });
+    } else {
+      return res.status(200).json({
+        status: "Request ok",
+        message: `${existingUser.firstName} this is your attendance record`,
+      });
+    }
+  } catch (error) {
+    es.status(500).json({
+      status: "server error",
+      message: error.message,
+    });
   }
+};
 
 exports.verifyEmail = async (req, res) => {
   try {
@@ -162,20 +176,20 @@ exports.verifyEmail = async (req, res) => {
     if (!existingUser) {
       return res.status(404).json({
         status: "Not Found",
-        message: "User not found",
+        message: "Student Not found",
       });
     }
     if (existingUser.isVerified) {
       return res.status(400).json({
         status: "Bad Request",
-        message: "User already verified",
+        message: "Student Already verified",
       });
     }
     existingUser.isVerified = true;
     await existingUser.save();
     res.status(200).json({
       status: "ok",
-      message: "User verified successfully",
+      message: "Student verified successfully",
     });
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
