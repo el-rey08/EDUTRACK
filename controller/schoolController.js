@@ -5,6 +5,8 @@ const jwt = require("jsonwebtoken");
 const { signUpTemplate, verifyTemplate } = require("../helpers/template");
 const teacherModel = require("../models/teachearModel");
 const studentModel = require("../models/studentModel");
+const cloudinary = require('../utils/cloudinary')
+const fs = require('fs')
 const date = new Date();
 
 exports.signUp = async (req, res) => {
@@ -22,7 +24,14 @@ exports.signUp = async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!schoolName || !schoolType || !schoolAddress || !schoolPhone || !schoolEmail || !schoolPassword) {
+    if (
+      !schoolName ||
+      !schoolType ||
+      !schoolAddress ||
+      !schoolPhone ||
+      !schoolEmail ||
+      !schoolPassword
+    ) {
       return res.status(400).json({
         status: "Bad Request",
         message: "All fields are required",
@@ -53,6 +62,8 @@ exports.signUp = async (req, res) => {
     let schoolID = generateID();
 
     // Create new school record
+    const file = req.file
+        const image = await cloudinary_js_config.uploader.upload(file.path)
     const newData = new schoolModel({
       schoolName,
       schoolType,
@@ -61,6 +72,7 @@ exports.signUp = async (req, res) => {
       schoolEmail: schoolEmail.toLowerCase().trim(),
       schoolPassword: hashedPassword,
       schoolID,
+      schoolPicture:image.secure_url
     });
 
     // Generate verification token
@@ -71,7 +83,9 @@ exports.signUp = async (req, res) => {
     );
 
     // Prepare verification email
-    const verifyLink = `${req.protocol}://${req.get("host")}/api/v1/school/verify/${userToken}`;
+    const verifyLink = `${req.protocol}://${req.get(
+      "host"
+    )}/api/v1/school/verify/${userToken}`;
     let mailOptions = {
       email: newData.schoolEmail,
       subject: "Email Verification",
@@ -85,9 +99,7 @@ exports.signUp = async (req, res) => {
       status: "ok",
       message: "Registration complete. Please verify your email.",
       newData,
-      userToken
-    
-      
+      userToken,
     });
   } catch (error) {
     res.status(500).json({
@@ -150,94 +162,37 @@ exports.signIn = async (req, res) => {
   }
 };
 
-// exports.getOneStudent = async (req, res) => {
-//   try {
-//     const { studentID } = req.body;
-//     const { schoolID } = req.user;
-//     const school = await schoolModel.findOne({schoolID});
-//     if (!school) {
-//       return res.status(404).json({
-//         status: "Not Found",
-//         message: "student not found",
-//       });
-//     }
-//     // const students = school.students.find(
-//     //   (student) => student._id === studentID
-//     // );
-//     // if (!students) {
-//     //   return res.status(404).json({
-//     //     status: "Not Found",
-//     //     message: "student not found",
-//     //   });
-//     // }
-
-//     const student = await 
-//     res.status(200).json({
-//       status: "Request ok",
-//       message: `This is ${students.firstName} info`,
-//       data: students,
-//     });
-//   } catch (error) {
-//     es.status(500).json({
-//       status: "server error",
-//       message: error.message,
-//     });
-//   }
-// };
-
-exports.getOneStudent = async (req,res)=>{
- try {
-  const {studentID} = req.body
-  const getOne= await studentModel.findOne({studentID})
-  if(!getOne){
-    return res.status(404).json({message:'student not found or registered'})
+exports.getOneStudent = async (req, res) => {
+  try {
+    const { studentID } = req.body;
+    const {userId} = req.user
+    const school = await schoolModel.findOne({_id:userId}).populate('students')
+    if(!school){
+      return res.status(404).json({
+        status:'Not found',
+        message:'school not found'
+      })
+    }
+    const getOne = await studentModel.findOne({ studentID });
+    if (!getOne) {
+      return res
+        .status(404)
+        .json({ message: "student not found or registered" });
+    }
+    return res
+      .status(200)
+      .json({ message: "below is the student you request for", data: getOne });
+  } catch (error) {
+    res.status(500).json(error.message);
   }
-  return res.status(200).json({message:'below is the student you request for',data:getOne})
-  
- } catch (error) {
-  res.status(500).json(error.message)
- }
-}
-
-// exports.getOneTeacher = async (req, res) => {
-//   try {
-//     const { teacherID } = req.params;
-//     const { schoolID } = req.user;
-
-//     const school = await schoolModel.findOne({ schoolID });
-//     if (!school) {
-//       return res.status(404).json({
-//         status: "Not Found",
-//         message: "School not found",
-//       });
-//     }
-//     const teachers = school.teachers.find(
-//       (teacher) => teacher._id === teacherID
-//     );
-
-//     if (!teachers) {
-//       return res.status(404).json({
-//         status: "Not Found",
-//         message: "Teacher not found in the specified school",
-//       });
-//     }
-//     return res.status(200).json({
-//       status: "Request ok",
-//       message: `This is ${teachers.firstName} info`,
-//       data: teachers,
-//     });
-//   } catch (error) {
-//     return res.status(500).json({
-//       status: "Server error",
-//       message: error.message,
-//     });
-//   }
-// };
+};
 
 exports.getAllTeachers = async (req, res) => {
   try {
-    const { schoolID } = req.user;
-    const school = await schoolModel.findOne({schoolID});
+    const { userId} = req.user;
+    console.log(userId)
+    const school = await schoolModel.findOne({_id: userId }).populate('teachers');
+    console.log(school)
     if (!school) {
       return res.status(404).json({
         status: "Not found",
@@ -254,7 +209,7 @@ exports.getAllTeachers = async (req, res) => {
     res.status(200).json({
       status: "OK",
       message: `Found ${teachers.length} registered teachers in the school`,
-      data: teachers,
+      data: school,
     });
   } catch (error) {
     res.status(500).json({
@@ -266,8 +221,8 @@ exports.getAllTeachers = async (req, res) => {
 
 exports.getAllStudents = async (req, res) => {
   try {
-    const { schoolID } = req.user;
-    const school = await schoolModel.findOne({schoolID});
+    const { userId} = req.user;
+    const school = await schoolModel.findOne({ _id: userId }).populate('students');
     if (!school) {
       return res.status(404).json({
         status: "Not found",
@@ -284,7 +239,7 @@ exports.getAllStudents = async (req, res) => {
     res.status(200).json({
       status: "OK",
       message: `Found ${students.length} registered students in the school`,
-      data: students
+      data: school,
     });
   } catch (error) {
     res.status(500).json({
@@ -297,15 +252,17 @@ exports.getAllStudents = async (req, res) => {
 exports.deleteTeacher = async (req, res) => {
   try {
     const { teacherID } = req.params;
-    const { schoolID } = req.user;
-    const school = await schoolModel.findOne({schoolID});
+    const { userId } = req.user;
+    const school = await schoolModel.findOne({ _id: userId });
     if (!school) {
       return res.status(404).json({
         status: "Not found",
         message: "School not found",
       });
     }
-    const teacherIndex = school.teachers.findIndex(teacher => teacher.id === teacherID);
+    const teacherIndex = school.teachers.findIndex(
+      (teacher) => teacher._id === teacherID
+    );
     if (teacherIndex === -1) {
       return res.status(404).json({
         status: "Not found",
@@ -313,12 +270,11 @@ exports.deleteTeacher = async (req, res) => {
       });
     }
     school.teachers.splice(teacherIndex, 1);
-    await school.save()
+    await school.save();
     res.status(200).json({
       status: "OK",
       message: `Teacher with ID ${teacherID} has been deleted successfully`,
     });
-
   } catch (error) {
     res.status(500).json({
       status: "Server error",
@@ -331,14 +287,16 @@ exports.deleteStudent = async (req, res) => {
   try {
     const { studentID } = req.params;
     const { schoolID } = req.user;
-    const school = await schoolModel.findOne({schoolID});
+    const school = await schoolModel.findOne({ schoolID });
     if (!school) {
       return res.status(404).json({
         status: "Not found",
         message: "School not found",
       });
     }
-    const studentIndex = school.students.findIndex(student => student._id === studentID);
+    const studentIndex = school.students.findIndex(
+      (student) => student._id === studentID
+    );
     if (studentIndex === -1) {
       return res.status(404).json({
         status: "Not found",
@@ -346,12 +304,11 @@ exports.deleteStudent = async (req, res) => {
       });
     }
     school.students.splice(studentIndex, 1);
-    await school.save()
+    await school.save();
     res.status(200).json({
       status: "OK",
       message: `Student with ID ${studentID} has been deleted successfully`,
     });
-
   } catch (error) {
     res.status(500).json({
       status: "Server error",
@@ -359,7 +316,6 @@ exports.deleteStudent = async (req, res) => {
     });
   }
 };
-
 
 exports.verifyEmail = async (req, res) => {
   try {

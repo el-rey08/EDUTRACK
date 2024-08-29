@@ -118,6 +118,4 @@ module.exports = {
   authenticate,
   checkAdminOrTeacher,
   checkAdmin
-
-  //   schoolAdmin,
 };

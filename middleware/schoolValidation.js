@@ -13,6 +13,7 @@ exports.signUpValidation = async (req, res, next)=> {
         "string.min": "the minium name must be at least 3 character long",
         "string.pattern.base": "school name should only contain letters",
       }),
+      studentID:joiValidation.number().integer().required(),
       schoolType:joiValidation
       .string()
       .required()

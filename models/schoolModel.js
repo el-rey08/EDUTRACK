@@ -49,6 +49,9 @@ const schoolSchema = new mongoose.Schema({
         type: String,
         enum: ['admin'],
         default: 'admin'
+    },
+    schoolPicture:{
+        type:String,
     }
 }, { timestamps: true });
 

@@ -77,6 +77,9 @@ const teacherSchema = new mongoose.Schema({
         type: String,
         enum: ['teacher', 'admin'],
         default: 'teacher' // Default to 'teacher'
+    },
+    teacherProfile:{
+        type:String
     }
 }, { timestamps: true });
 

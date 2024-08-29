@@ -1,4 +1,5 @@
 const express = require("express");
+const uplods = require('../utils/multer')
 const {
   signUpValidation,
   logInValidator,
@@ -6,8 +7,6 @@ const {
 const {
   signUp,
   signIn,
-  // getOneStudent,
-  // getOneTeacher,
   resendVerificationEmail,
   forgetPassword,
   resetPassword,
@@ -15,23 +14,24 @@ const {
   getAllTeachers,
   getAllStudents,
   deleteTeacher,
-  getOneStudent
+  getOneStudent,
+  deleteStudent
 } = require("../controller/schoolController");
 const {authenticate,checkAdminOrTeacher,checkAdmin} = require("../middleware/auth");
+const { getOneTeacher } = require("../controller/teacherController");
 const router = express.Router();
-router.post("/sign_up", signUpValidation, signUp);
+router.post("/sign_up", signUpValidation,uplods.single('productImage'), signUp);
 router.post("/log-in", logInValidator, signIn);
 router.get('/verify/:token', verifyEmail)
-// router.get("/get-student/school/:studentID",getOneStudent);
-// router.get("/get-teacher/school/:teacherID", authenticate,getOneTeacher);
 router.post("/resend-verify", resendVerificationEmail);
 router.post("/forget-password", forgetPassword);
 router.post("/reset-passord/:token", resetPassword);
-router.get("/get-teachers", authenticate,getAllTeachers);
-router.get('/get-students',getAllStudents)
-router.delete("/delete-student/:studentID", authenticate,);
-router.delete("/delete-student/:teacherID", authenticate,deleteTeacher);
-router.get('/getOne', authenticate,checkAdmin,getOneStudent)
+router.get("/get-teachers", authenticate,checkAdmin,getAllTeachers);
+router.get('/get-students',authenticate,checkAdmin,checkAdminOrTeacher,getAllStudents)
+router.delete("/delete-student/:studentID", authenticate,checkAdminOrTeacher,checkAdmin,deleteStudent);
+router.delete("/delete-teacher/:teacherID", authenticate,checkAdmin,deleteTeacher);
+router.get('/getOne-student', authenticate,checkAdmin,checkAdminOrTeacher,getOneStudent)
+router.get('/getOne-teacher', authenticate,checkAdmin,getOneTeacher)
 module.exports = router;
 
 

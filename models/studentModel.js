@@ -74,6 +74,9 @@ const studentSchema = new mongoose.Schema({
  school:{
   type:mongoose.Schema.Types.ObjectId,
   ref:"school"
+ },
+ studentProfile:{
+  type:String
  }
 },{timestamps:true})
 const studentModel = mongoose.model('student', studentSchema)

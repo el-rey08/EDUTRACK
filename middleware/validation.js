@@ -1,6 +1,7 @@
 const joiValidation = require("@hapi/joi");
 
 exports.singUpVlidator = async (req, res, next) => {
+  console.log(req.body);
   const Schema = joiValidation.object({
     firstName: joiValidation
       .string()
@@ -83,7 +84,8 @@ exports.singUpVlidator = async (req, res, next) => {
         .messages({
           'string.pattern.base': 'Date of birth must be in the format DD/MM/YYYY.',
           'any.required': 'Date of birth is a required field.'
-      })
+      }),
+      schoolID: joiValidation.number().integer()
         
       })
       
@@ -106,8 +108,6 @@ exports.logInValidator = async (req, res, next) => {
     //   "string.email":"invalid email format. please enter a valid email address",
     // }),
     studentID:joiValidation.number().integer().required(),
-    
-
     password: joiValidation
       .string()
       .required()
