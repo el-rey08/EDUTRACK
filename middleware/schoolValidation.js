@@ -1,5 +1,6 @@
 const joiValidation = require('@hapi/joi')
 exports.signUpValidation = async (req, res, next)=> {
+  console.log("request body" ,req.body);
     const Schema = joiValidation.object({
         schoolName:joiValidation
         .string()
@@ -13,7 +14,6 @@ exports.signUpValidation = async (req, res, next)=> {
         "string.min": "the minium name must be at least 3 character long",
         "string.pattern.base": "school name should only contain letters",
       }),
-      studentID:joiValidation.number().integer().required(),
       schoolType:joiValidation
       .string()
       .required()

@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const sendMail = require("../helpers/email");
 const { signUpTemplate, verifyTemplate } = require("../helpers/template");
 const schoolModel = require("../models/schoolModel");
+const cloudinary = require('../utils/cloudinary')
 const date = new Date();
 
 exports.signUp = async (req, res) => {
@@ -24,8 +25,6 @@ exports.signUp = async (req, res) => {
       phoneNumber,
       schoolID,
     } = req.body;
-
-    // Check if all required fields are provided
     if (
       !firstName ||
       !lastName ||
@@ -44,8 +43,6 @@ exports.signUp = async (req, res) => {
         message: "Please, all fields are required",
       });
     }
-
-    // Check if the teacher already exists by email
     const existingTeacher = await teacherModel.findOne({ email });
     if (existingTeacher) {
       return res.status(400).json({
@@ -53,8 +50,6 @@ exports.signUp = async (req, res) => {
         message: "Teacher already exists",
       });
     }
-
-    // Find the school by schoolID
     const school = await schoolModel.findOne({ schoolID });
     if (!school) {
       return res.status(400).json({
@@ -62,16 +57,11 @@ exports.signUp = async (req, res) => {
         message: `No school with id ${schoolID}`,
       });
     }
-
-    // Hash the password
     const saltedPassword = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, saltedPassword);
-
-    // Generate a unique teacherID
     let teacherID = generateID();
     const file = req.file;
-    const image = await cloudinary_js_config.uploader.upload(file.path);
-    // Create a new teacher object
+    const image = await cloudinary.uploader.upload(file.path);
     const data = new teacherModel({
       firstName,
       surnName,
@@ -80,38 +70,31 @@ exports.signUp = async (req, res) => {
       email,
       password: hashedPassword,
       state,
-      teacherID, // Assign the generated teacherID
-      school: school._id, // Reference the school's ObjectId
+      teacherID,
+      school: school._id,
       gender,
       maritalStatus,
       phoneNumber,
       teacherProfile: image.secure_url,
     });
 
-    // Generate a JWT token for email verification
     const userToken = jwt.sign(
       { id: data.teacherID, email: data.email },
       process.env.JWT_SECRET,
       { expiresIn: "30min" }
     );
 
-    const verifyLink = `${req.protocol}://${req.get(
-      "host"
-    )}/api/v1/teacher/verify/${userToken}`;
+    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/teacher/verify/${userToken}`;
 
     let mailOptions = {
       email: data.email,
       subject: "Email Verification",
       html: signUpTemplate(verifyLink, `${data.firstName} ${data.lastName}`),
     };
-    // Save the teacher to the database
     await data.save();
-    // Add the generated teacherID to the school's teachers array
     school.teachers.push(data._id);
     await school.save();
-    // Send a verification email
     await sendMail(mailOptions);
-    // Respond with success
     res.status(201).json({
       status: "ok",
       message: "Registration complete",
@@ -226,9 +209,7 @@ exports.resendVerificationEmail = async (req, res) => {
     const token = jwt.sign({ email: teacher.email }, process.env.JWT_SECRET, {
       expiresIn: "20mins",
     });
-    const verifyLink = `${req.protocol}://${req.get(
-      "host"
-    )}/api/v1/teacher/resend-verify/${token}`;
+    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/teacher/resend-verify/${token}`;
     let mailOptions = {
       email: teacher.email,
       subject: "Verification email",
@@ -264,11 +245,7 @@ exports.forgetPassword = async (req, res) => {
     let mailOptions = {
       email: teacher.email,
       subject: "password reset",
-      html: `please click the link to reset your password: <a href="${
-        req.protocol
-      }://${req.get(
-        "host"
-      )}/api/v1/teacher/reset-password/${resetToken}>Reset password</a>link expiers in 30min"`,
+      html: `please click the link to reset your password: <a href="https://edutrack-v1cr.onrender.com/api/v1/teacher/reset-password/${resetToken}>Reset password</a>link expiers in 30min"`,
     };
     await sendMail(mailOptions);
     res.status(200).json({

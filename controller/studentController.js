@@ -24,7 +24,7 @@ exports.signUp = async (req, res) => {
       gender,
       dateOfBirth,
       schoolID,
-      class: studentClass, // Added the class field
+      class: studentClass,
     } = req.body;
 
     if (
@@ -38,7 +38,7 @@ exports.signUp = async (req, res) => {
       !schoolID ||
       !gender ||
       !dateOfBirth ||
-      !studentClass // Added class to the required fields check
+      !studentClass
     ) {
       return res.status(400).json({
         status: "Bad request",
@@ -66,7 +66,7 @@ exports.signUp = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, saltedPassword);
     const studentID = generateID();
     const file = req.file
-        const image = await cloudinary_js_config.uploader.upload(file.path)
+        const image = await cloudinary.uploader.upload(file.path)
     const data = new studentModel({
       firstName,
       surnName,
@@ -89,9 +89,7 @@ exports.signUp = async (req, res) => {
       { expiresIn: "30min" }
     );
 
-    const verifyLink = `${req.protocol}://${req.get(
-      "host"
-    )}/api/v1/student/verify/${userToken}`;
+    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/student/verify/${userToken}`;
     let mailOptions = {
       email: data.email,
       subject: "Email Verification",

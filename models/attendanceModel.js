@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const attendanceSchema = mongoose.Schema({
-  student: { type: mongoose.Schema.Types.ObjectId, ref: "Student" },
+  student:{ type: mongoose.Schema.Types.ObjectId, ref: "Student" },
   studentName:{
     type:String,
     require:true

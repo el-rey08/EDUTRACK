@@ -1,6 +1,6 @@
 const schoolModel = require("../models/schoolModel");
 const bcrypt = require("bcrypt");
-const sendMail = require("../helpers/email");
+const {sendMail} = require("../helpers/email");
 const jwt = require("jsonwebtoken");
 const { signUpTemplate, verifyTemplate } = require("../helpers/template");
 const teacherModel = require("../models/teachearModel");
@@ -10,8 +10,9 @@ const fs = require('fs')
 const date = new Date();
 
 exports.signUp = async (req, res) => {
+  console.log("request body",req.body);
   const generateID = function () {
-    return Math.floor(1000 + Math.random() * 9000); // Generate a 4-digit ID
+    return Math.floor(1000 + Math.random() * 9000);
   };
   try {
     const {
@@ -22,8 +23,6 @@ exports.signUp = async (req, res) => {
       schoolEmail,
       schoolPassword,
     } = req.body;
-
-    // Validate required fields
     if (
       !schoolName ||
       !schoolType ||
@@ -37,8 +36,6 @@ exports.signUp = async (req, res) => {
         message: "All fields are required",
       });
     }
-
-    // Validate email format (basic validation)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(schoolEmail)) {
       return res.status(400).json({
@@ -46,8 +43,6 @@ exports.signUp = async (req, res) => {
         message: "Invalid email format",
       });
     }
-
-    // Check for existing school
     const existingSchool = await schoolModel.findOne({ schoolEmail });
     if (existingSchool) {
       return res.status(400).json({
@@ -55,15 +50,11 @@ exports.signUp = async (req, res) => {
         message: "This school already exists",
       });
     }
-
-    // Hash password
     const saltedPassword = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(schoolPassword, saltedPassword);
     let schoolID = generateID();
-
-    // Create new school record
     const file = req.file
-        const image = await cloudinary_js_config.uploader.upload(file.path)
+        const image = await cloudinary.uploader.upload(file.path)
     const newData = new schoolModel({
       schoolName,
       schoolType,
@@ -74,27 +65,19 @@ exports.signUp = async (req, res) => {
       schoolID,
       schoolPicture:image.secure_url
     });
-
-    // Generate verification token
     const userToken = jwt.sign(
       { id: newData.schoolID, email: newData.schoolEmail },
       process.env.JWT_SECRET,
       { expiresIn: "30min" }
     );
-
-    // Prepare verification email
-    const verifyLink = `${req.protocol}://${req.get(
-      "host"
-    )}/api/v1/school/verify/${userToken}`;
+    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/school/verify/${userToken}`;
     let mailOptions = {
       email: newData.schoolEmail,
       subject: "Email Verification",
       html: signUpTemplate(verifyLink, `${newData.schoolName}`),
     };
-    // Save school and send verification email
     await newData.save();
     await sendMail(mailOptions);
-
     res.status(201).json({
       status: "ok",
       message: "Registration complete. Please verify your email.",
@@ -249,31 +232,29 @@ exports.getAllStudents = async (req, res) => {
   }
 };
 
-exports.deleteTeacher = async (req, res) => {
+exports.deleteStudent = async (req, res) => {
   try {
-    const { teacherID } = req.params;
     const { userId } = req.user;
-    const school = await schoolModel.findOne({ _id: userId });
+    const { studentID } = req.body;
+    const school = await schoolModel.findOne({ _id: userId }).populate('students');
     if (!school) {
       return res.status(404).json({
         status: "Not found",
         message: "School not found",
       });
     }
-    const teacherIndex = school.teachers.findIndex(
-      (teacher) => teacher._id === teacherID
-    );
-    if (teacherIndex === -1) {
+    const student = await studentModel.findOneAndDelete({ studentID, school: userId });
+    if (!student) {
       return res.status(404).json({
         status: "Not found",
-        message: "Teacher not found in this school",
+        message: "Student not found in this school",
       });
     }
-    school.teachers.splice(teacherIndex, 1);
+    school.students.pull(student._id);
     await school.save();
     res.status(200).json({
       status: "OK",
-      message: `Teacher with ID ${teacherID} has been deleted successfully`,
+      message: "Student deleted successfully",
     });
   } catch (error) {
     res.status(500).json({
@@ -283,31 +264,30 @@ exports.deleteTeacher = async (req, res) => {
   }
 };
 
-exports.deleteStudent = async (req, res) => {
+exports.deleteTeacher = async (req, res) => {
   try {
-    const { studentID } = req.params;
-    const { schoolID } = req.user;
-    const school = await schoolModel.findOne({ schoolID });
+    const { userId } = req.user;
+    const { teacherID } = req.body;
+    const school = await schoolModel.findOne({ _id: userId }).populate('teachers');
     if (!school) {
       return res.status(404).json({
         status: "Not found",
         message: "School not found",
       });
     }
-    const studentIndex = school.students.findIndex(
-      (student) => student._id === studentID
-    );
-    if (studentIndex === -1) {
+    const teacher = await teacherModel.findOneAndDelete({ teacherID, school: userId });
+    if (!teacher) {
       return res.status(404).json({
         status: "Not found",
-        message: "Teacher not found in this school",
+        message: "teacher not found in this school",
       });
     }
-    school.students.splice(studentIndex, 1);
+    school.teachers.pull(teacher._id);
     await school.save();
+
     res.status(200).json({
       status: "OK",
-      message: `Student with ID ${studentID} has been deleted successfully`,
+      message: "teacher deleted successfully",
     });
   } catch (error) {
     res.status(500).json({
@@ -316,6 +296,7 @@ exports.deleteStudent = async (req, res) => {
     });
   }
 };
+
 
 exports.verifyEmail = async (req, res) => {
   try {
@@ -372,9 +353,7 @@ exports.resendVerificationEmail = async (req, res) => {
         expiresIn: "20mins",
       }
     );
-    const verifyLink = `${req.protocol}://${req.get(
-      "host"
-    )}/api/v1/school/resend-verify/${token}`;
+    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/school/resend-verify/${token}`;
     let mailOptions = {
       email: school.schoolEmail,
       subject: "Verification email",
@@ -410,11 +389,7 @@ exports.forgetPassword = async (req, res) => {
     let mailOptions = {
       email: school.schoolEmail,
       subject: "password reset",
-      html: `please click the link to reset your password: <a href="${
-        req.protocol
-      }://${req.get(
-        "host"
-      )}/api/v1/School/reset-password/${resetToken}>Reset password</a>link expiers in 30min"`,
+      html: `please click the link to reset your password: <a href="https://edutrack-v1cr.onrender.com/api/v1/School/reset-password/${resetToken}>Reset password</a>link expiers in 30min"`,
     };
     await sendMail(mailOptions);
     res.status(200).json({
