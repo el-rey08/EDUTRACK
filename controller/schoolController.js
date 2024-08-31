@@ -36,13 +36,6 @@ exports.signUp = async (req, res) => {
         message: "All fields are required",
       });
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(schoolEmail)) {
-      return res.status(400).json({
-        status: "Bad Request",
-        message: "Invalid email format",
-      });
-    }
     const existingSchool = await schoolModel.findOne({ schoolEmail });
     if (existingSchool) {
       return res.status(400).json({
@@ -82,7 +75,6 @@ exports.signUp = async (req, res) => {
       status: "ok",
       message: "Registration complete. Please verify your email.",
       newData,
-      userToken,
     });
   } catch (error) {
     res.status(500).json({
@@ -302,21 +294,26 @@ exports.verifyEmail = async (req, res) => {
   try {
     const { token } = req.params;
     const { schoolEmail } = jwt.verify(token, process.env.JWT_SECRET);
-    const existingSchool = await schoolModel.findOne({ schoolEmail });
+    console.log("Decoded token data:", { schoolEmail });
+
+    const existingSchool = await schoolModel.findOne({ schoolEmail: schoolEmail.toLowerCase().trim() });
     if (!existingSchool) {
       return res.status(404).json({
         status: "Not Found",
         message: "School Not found",
       });
     }
+
     if (existingSchool.isVerified) {
       return res.status(400).json({
         status: "Bad Request",
         message: "School Already verified",
       });
     }
+
     existingSchool.isVerified = true;
     await existingSchool.save();
+
     res.status(200).json({
       status: "ok",
       message: "School verified successfully",
@@ -331,6 +328,7 @@ exports.verifyEmail = async (req, res) => {
     });
   }
 };
+
 
 exports.resendVerificationEmail = async (req, res) => {
   try {
