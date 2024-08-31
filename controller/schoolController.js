@@ -114,7 +114,7 @@ exports.signIn = async (req, res) => {
           "School not verified please check your email for verification link",
       });
     }
-    const token = jwt.sign(
+    const userToken = jwt.sign(
       {
         userId: existingSchool._id,
         email: existingSchool.schoolEmail,
@@ -127,7 +127,7 @@ exports.signIn = async (req, res) => {
     res.status(200).json({
       message: `${existingSchool.schoolName} is logged in`,
       data: existingSchool,
-      token,
+      userToken,
     });
   } catch (error) {
     res.status(500).json({
@@ -292,8 +292,8 @@ exports.deleteTeacher = async (req, res) => {
 
 exports.verifyEmail = async (req, res) => {
   try {
-    const { token } = req.params;
-    const { schoolEmail } = jwt.verify(token, process.env.JWT_SECRET);
+    const { userToken } = req.params;
+    const { schoolEmail } = jwt.verify(userToken, process.env.JWT_SECRET);
     const existingSchool = await schoolModel.findOne({ schoolEmail });
     if (!existingSchool) {
       return res.status(404).json({
@@ -338,14 +338,14 @@ exports.resendVerificationEmail = async (req, res) => {
         message: "school already verified",
       });
     }
-    const token = jwt.sign(
+    const userToken = jwt.sign(
       { email: school.schoolEmail },
       process.env.JWT_SECRET,
       {
         expiresIn: "20mins",
       }
     );
-    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/school/resend-verify/${token}`;
+    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/school/resend-verify/${userToken}`;
     let mailOptions = {
       email: school.schoolEmail,
       subject: "Verification email",
@@ -394,9 +394,9 @@ exports.forgetPassword = async (req, res) => {
 
 exports.resetPassword = async (req, res) => {
   try {
-    const { token } = req.params;
+    const { userToken } = req.params;
     const { schoolPassword } = req.body;
-    const { schoolEmail } = jwt.verify(token, process.env.JWT_SECRET);
+    const { schoolEmail } = jwt.verify(userToken, process.env.JWT_SECRET);
     const school = await schoolModel.findOne({ schoolEmail });
     if (!school) {
       res.status(404).json({
