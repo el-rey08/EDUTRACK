@@ -294,6 +294,7 @@ exports.verifyEmail = async (req, res) => {
   try {
     const { userToken } = req.params;
     const { schoolEmail } = jwt.verify(userToken, process.env.JWT_SECRET);
+    console.log("Decoded token data:", { schoolEmail });
     const existingSchool = await schoolModel.findOne({ schoolEmail });
     if (!existingSchool) {
       return res.status(404).json({
