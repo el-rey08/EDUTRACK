@@ -89,7 +89,7 @@ exports.signUp = async (req, res) => {
       { expiresIn: "30min" }
     );
 
-    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/student/verify/${userToken}`;
+    const verifyLink =' https://edutrack-v1cr.onrender.com/api/v1/school/verify/:userToken';
     let mailOptions = {
       email: data.email,
       subject: "Email Verification",
@@ -141,7 +141,7 @@ exports.signIn = async (req, res) => {
           "Student not verified please check your email for verification link",
       });
     }
-    const token = jwt.sign(
+    const userToken = jwt.sign(
       {
         userId: existingUser.studentID,
         email: existingUser.email,
@@ -154,7 +154,7 @@ exports.signIn = async (req, res) => {
     res.status(200).json({
       message: `${existingUser.firstName} is logged in`,
       data: existingUser,
-      token,
+      userToken,
     });
   } catch (error) {
     res.status(500).json({
@@ -189,8 +189,8 @@ exports.getOne = async (req, res) => {
 
 exports.verifyEmail = async (req, res) => {
   try {
-    const { token } = req.params;
-    const { email } = jwt.verify(token, process.env.JWT_SECRET);
+    const { userToken } = req.params;
+    const { email } = jwt.verify(userToken, process.env.JWT_SECRET);
     const existingUser = await studentModel.findOne({ email });
     if (!existingUser) {
       return res.status(404).json({

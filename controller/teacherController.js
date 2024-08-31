@@ -84,7 +84,7 @@ exports.signUp = async (req, res) => {
       { expiresIn: "30min" }
     );
 
-    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/teacher/verify/${userToken}`;
+    const verifyLink = 'https://edutrack-v1cr.onrender.com/api/v1/school/verify/:userToken';
 
     let mailOptions = {
       email: data.email,
@@ -136,7 +136,7 @@ exports.signIn = async (req, res) => {
           "Teacher is  not verified please check your email for verification link",
       });
     }
-    const token = jwt.sign(
+    const userToken = jwt.sign(
       {
         userId: existingTeacher._id,
         email: existingTeacher.email,
@@ -149,7 +149,7 @@ exports.signIn = async (req, res) => {
     res.status(200).json({
       message: `${existingTeacher.firstName} is logged in`,
       data: existingTeacher,
-      token,
+      userToken,
     });
   } catch (error) {
     res.status(500).json({
@@ -161,8 +161,8 @@ exports.signIn = async (req, res) => {
 
 exports.verifyEmail = async (req, res) => {
   try {
-    const { token } = req.params;
-    const { email } = jwt.verify(token, process.env.JWT_SECRET);
+    const { userToken } = req.params;
+    const { email } = jwt.verify(userToken, process.env.JWT_SECRET);
     const teacher = await teacherModel.findOne({ email });
     if (!teacher) {
       return res.status(404).json({
@@ -206,10 +206,10 @@ exports.resendVerificationEmail = async (req, res) => {
         message: "school already verified",
       });
     }
-    const token = jwt.sign({ email: teacher.email }, process.env.JWT_SECRET, {
+    const userToken = jwt.sign({ email: teacher.email }, process.env.JWT_SECRET, {
       expiresIn: "20mins",
     });
-    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/teacher/resend-verify/${token}`;
+    const verifyLink = 'https://edutrack-v1cr.onrender.com/api/v1/school/verify/:userToken';
     let mailOptions = {
       email: teacher.email,
       subject: "Verification email",
@@ -245,7 +245,7 @@ exports.forgetPassword = async (req, res) => {
     let mailOptions = {
       email: teacher.email,
       subject: "password reset",
-      html: `please click the link to reset your password: <a href="https://edutrack-v1cr.onrender.com/api/v1/teacher/reset-password/${resetToken}>Reset password</a>link expiers in 30min"`,
+      html: `please click the link to reset your password: <a href="https://edutrack-v1cr.onrender.com/api/v1/school/verify/:userToken>Reset password</a>link expiers in 30min"`,
     };
     await sendMail(mailOptions);
     res.status(200).json({
@@ -258,9 +258,9 @@ exports.forgetPassword = async (req, res) => {
 
 exports.resetPassword = async (req, res) => {
   try {
-    const { token } = req.params;
+    const { userToken } = req.params;
     const { password } = req.body;
-    const { email } = jwt.verify(token, process.env.JWT_SECRET);
+    const { email } = jwt.verify(userToken, process.env.JWT_SECRET);
     const teacher = await teacherModel.findOne({ email });
     if (!teacher) {
       res.status(404).json({

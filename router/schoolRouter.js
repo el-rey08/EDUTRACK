@@ -16,6 +16,8 @@ const {
   getOneStudent,
   deleteStudent,
   deleteTeacher,
+  getall,
+  remove,
 } = require("../controller/schoolController");
 const {authenticate,checkAdminOrTeacher,checkAdmin} = require("../middleware/auth");
 const { getOneTeacher } = require("../controller/teacherController");
@@ -32,4 +34,6 @@ router.get('/getOne-student', authenticate,checkAdmin,checkAdminOrTeacher,getOne
 router.get('/getOne-teacher', authenticate,checkAdmin,getOneTeacher)
 router.delete('/delete-student',authenticate,checkAdmin,deleteStudent)
 router.delete('/delete-teacher',authenticate,checkAdmin,deleteTeacher)
+router.get('/geteverything', getall)
+router.delete('/clear/:schoolID',remove)
 module.exports = router;

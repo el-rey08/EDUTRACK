@@ -63,7 +63,7 @@ exports.signUp = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "30min" }
     );
-    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/school/verify/${userToken}`;
+    const verifyLink = 'https://edutrack-v1cr.onrender.com/api/v1/school/verify/:userToken';
     let mailOptions = {
       email: newData.schoolEmail,
       subject: "Email Verification",
@@ -347,7 +347,8 @@ exports.resendVerificationEmail = async (req, res) => {
         expiresIn: "20mins",
       }
     );
-    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/school/resend-verify/${userToken}`;
+    const verifyLink =" https://edutrack-v1cr.onrender.com/api/v1/school/verify/:userToken"
+    ;
     let mailOptions = {
       email: school.schoolEmail,
       subject: "Verification email",
@@ -383,7 +384,7 @@ exports.forgetPassword = async (req, res) => {
     let mailOptions = {
       email: school.schoolEmail,
       subject: "password reset",
-      html: `please click the link to reset your password: <a href="https://edutrack-v1cr.onrender.com/api/v1/School/reset-password/${resetToken}>Reset password</a>link expiers in 30min"`,
+      html: `please click the link to reset your password: <a href="https://edutrack-v1cr.onrender.com/api/v1/school/verify/:userToken>Reset password</a>link expiers in 30min"`,
     };
     await sendMail(mailOptions);
     res.status(200).json({
@@ -414,5 +415,48 @@ exports.resetPassword = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json(error.message);
+  }
+};
+
+
+exports.getall = async(req, res)=>{
+  try {
+    const school= await schoolModel.find()
+    if(!school){
+      return res.status(404).json({
+        message:'school not found',
+        
+      })
+    }
+    res.status(200).json({
+      message:'here we go',
+      data:school
+    })
+  } catch (error) {
+    res.status(500).json(error.message)
+  }
+}
+
+
+exports.remove = async (req, res) => {
+  try {
+    const { schoolID } = req.params;
+    const deleteSchool = await schoolModel.findOneAndDelete({ schoolID });
+    if (!deleteSchool) {
+      return res.status(404).json({
+        status: "Not Found",
+        message: "Student not found",
+      });
+    }
+    res.status(200).json({
+      status: "OK",
+      message: "Student successfully deleted",
+      data: deleteSchool,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Server error",
+      message: error.message,
+    });
   }
 };
