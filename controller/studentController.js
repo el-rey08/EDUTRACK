@@ -89,7 +89,7 @@ exports.signUp = async (req, res) => {
       { expiresIn: "30min" }
     );
 
-    const verifyLink =' https://edutrack-v1cr.onrender.com/api/v1/school/verify/:userToken';
+    const verifyLink =`https://edutrack-v1cr.onrender.com/api/v1/school/verify/${userToken}`;
     let mailOptions = {
       email: data.email,
       subject: "Email Verification",
