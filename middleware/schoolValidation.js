@@ -14,18 +14,18 @@ exports.signUpValidation = async (req, res, next)=> {
         "string.min": "the minium name must be at least 3 character long",
         "string.pattern.base": "school name should only contain letters",
       }),
-      schoolType:joiValidation
-      .string()
-      .required()
-      .min(3)
-      .trim()
-      .regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/)
-      .messages({
-        "any.required": "please provide school type",
-        "string.empty": "school type cannot be empty",
-        "string.min": "the minium name must be at least 3 character long",
-        "string.pattern.base": "school type  should only contain letters",
-      }),
+      // schoolType:joiValidation
+      // .string()
+      // .required()
+      // .min(3)
+      // .trim()
+      // .regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/)
+      // .messages({
+      //   "any.required": "please provide school type",
+      //   "string.empty": "school type cannot be empty",
+      //   "string.min": "the minium name must be at least 3 character long",
+      //   "string.pattern.base": "school type  should only contain letters",
+      // }),
       schoolAddress:joiValidation.string().required(),
       schoolPhone:joiValidation.string().regex(/^\d{11}$/).message('Phone number must be exactly 11 digits'),
       schoolEmail:joiValidation
