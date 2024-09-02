@@ -295,8 +295,8 @@ exports.verifyEmail = async (req, res) => {
   try {
     const { userToken } = req.params;
     const { email } = jwt.verify(userToken, process.env.JWT_SECRET);
-    console.log("Decoded token data:", { schoolEmail });
-    const existingSchool = await schoolModel.findOne({ email:schoolEmail });
+    console.log("Decoded token data:", { email });
+    const existingSchool = await schoolModel.findOne({ schoolEmail:email });
     if (!existingSchool) {
       return res.status(404).json({
         status: "Not Found",
@@ -329,8 +329,8 @@ exports.verifyEmail = async (req, res) => {
 exports.resendVerificationEmail = async (req, res) => {
   try {
     const { email } = req.body;
-    const school = await schoolModel.findOne({ email:schoolEmail });
-    console.log("Decoded token data:", { schoolEmail });
+    const school = await schoolModel.findOne({ shoolEmail:email });
+    console.log("Decoded token data:", { email });
     if (!school) {
       return res.status(404).json({
         message: "school not found",
@@ -369,7 +369,7 @@ exports.resendVerificationEmail = async (req, res) => {
 exports.forgetPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    const school = await schoolModel.findOne({ email:schoolEmail });
+    const school = await schoolModel.findOne({ schoolEmail:email });
     if (!school) {
       res.status(404).json({
         message: "school not found",
@@ -401,7 +401,7 @@ exports.resetPassword = async (req, res) => {
     const { userToken } = req.params;
     const { schoolPassword } = req.body;
     const { email } = jwt.verify(userToken, process.env.JWT_SECRET);
-    const school = await schoolModel.findOne({ email:schoolEmail });
+    const school = await schoolModel.findOne({ schoolEmail:email });
     if (!school) {
       res.status(404).json({
         message: "user not found",
