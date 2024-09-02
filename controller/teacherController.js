@@ -245,7 +245,7 @@ exports.forgetPassword = async (req, res) => {
     let mailOptions = {
       email: teacher.email,
       subject: "password reset",
-      html: `please click the link to reset your password: <a href="https://edutrack-v1cr.onrender.com/api/v1/school/verify/${userToken}>Reset password</a>link expiers in 30min"`,
+      html: `please click the link to reset your password: <a href="https://edutrack-v1cr.onrender.com/api/v1/school/verify/${resetToken}>Reset password</a>link expiers in 30min"`,
     };
     await sendMail(mailOptions);
     res.status(200).json({

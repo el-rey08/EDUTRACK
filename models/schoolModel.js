@@ -9,7 +9,8 @@ const schoolSchema = new mongoose.Schema({
     schoolType: {
         type: String,
         required: true,
-        enum: ['secondary', 'high-school', 'college']
+        enum: ['secondary', 'high-school', 'college'],
+        default:'secondary'
     },
     schoolAddress: {
         type: String,

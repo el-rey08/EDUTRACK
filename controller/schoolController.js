@@ -61,7 +61,7 @@ exports.signUp = async (req, res) => {
     const userToken = jwt.sign(
       { id: newData.schoolID, email: newData.schoolEmail },
       process.env.JWT_SECRET,
-      { expiresIn: "30min" }
+      { expiresIn: "30 mins" }
     );
     const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/school/verify/${userToken}`;
     ;
@@ -294,9 +294,9 @@ exports.deleteTeacher = async (req, res) => {
 exports.verifyEmail = async (req, res) => {
   try {
     const { userToken } = req.params;
-    const { schoolEmail } = jwt.verify(userToken, process.env.JWT_SECRET);
+    const { email } = jwt.verify(userToken, process.env.JWT_SECRET);
     console.log("Decoded token data:", { schoolEmail });
-    const existingSchool = await schoolModel.findOne({ schoolEmail });
+    const existingSchool = await schoolModel.findOne({ email:schoolEmail });
     if (!existingSchool) {
       return res.status(404).json({
         status: "Not Found",
@@ -328,8 +328,8 @@ exports.verifyEmail = async (req, res) => {
 
 exports.resendVerificationEmail = async (req, res) => {
   try {
-    const { schoolEmail } = req.body;
-    const school = await schoolModel.findOne({ schoolEmail });
+    const { email } = req.body;
+    const school = await schoolModel.findOne({ email:schoolEmail });
     console.log("Decoded token data:", { schoolEmail });
     if (!school) {
       return res.status(404).json({
@@ -368,8 +368,8 @@ exports.resendVerificationEmail = async (req, res) => {
 
 exports.forgetPassword = async (req, res) => {
   try {
-    const { schoolEmail } = req.body;
-    const school = await schoolModel.findOne({ schoolEmail });
+    const { email } = req.body;
+    const school = await schoolModel.findOne({ email:schoolEmail });
     if (!school) {
       res.status(404).json({
         message: "school not found",
@@ -385,7 +385,7 @@ exports.forgetPassword = async (req, res) => {
     let mailOptions = {
       email: school.schoolEmail,
       subject: "password reset",
-      html: `please click the link to reset your password: <a href="https://edutrack-v1cr.onrender.com/api/v1/school/verify/${userToken}>Reset password</a>link expiers in 30min"`,
+      html: `please click the link to reset your password: <a href="https://edutrack-v1cr.onrender.com/api/v1/school/verify/${resetToken}>Reset password</a>link expiers in 30min"`,
     };
     await sendMail(mailOptions);
     res.status(200).json({
@@ -400,8 +400,8 @@ exports.resetPassword = async (req, res) => {
   try {
     const { userToken } = req.params;
     const { schoolPassword } = req.body;
-    const { schoolEmail } = jwt.verify(userToken, process.env.JWT_SECRET);
-    const school = await schoolModel.findOne({ schoolEmail });
+    const { email } = jwt.verify(userToken, process.env.JWT_SECRET);
+    const school = await schoolModel.findOne({ email:schoolEmail });
     if (!school) {
       res.status(404).json({
         message: "user not found",
