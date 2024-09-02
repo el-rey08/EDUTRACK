@@ -23,7 +23,7 @@ const schoolSchema = new mongoose.Schema({
     schoolEmail: {
         type: String,
         required: true,
-        // unique: true
+        unique: true
     },
     schoolID: {
         type: Number,
