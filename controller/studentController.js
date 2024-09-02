@@ -14,9 +14,7 @@ exports.signUp = async (req, res) => {
 
   try {
     const {
-      firstName,
-      surnName,
-      lastName,
+      fullName,
       email,
       password,
       address,
@@ -28,9 +26,7 @@ exports.signUp = async (req, res) => {
     } = req.body;
 
     if (
-      !firstName ||
-      !surnName ||
-      !lastName ||
+      !fullName ||
       !email ||
       !password ||
       !address ||
@@ -93,7 +89,7 @@ exports.signUp = async (req, res) => {
     let mailOptions = {
       email: data.email,
       subject: "Email Verification",
-      html: signUpTemplate(verifyLink, `${data.firstName} ${data.lastName}`),
+      html: signUpTemplate(verifyLink, `${data.fullName}`),
     };
 
     await data.save()
@@ -152,7 +148,7 @@ exports.signIn = async (req, res) => {
       { expiresIn: "1h" }
     );
     res.status(200).json({
-      message: `${existingUser.firstName} is logged in`,
+      message: `${existingUser.fullName} is logged in`,
       data: existingUser,
       userToken,
     });
@@ -176,7 +172,7 @@ exports.getOne = async (req, res) => {
     } else {
       return res.status(200).json({
         status: "Request ok",
-        message: `${existingUser.firstName} this is your attendance record`,
+        message: `${existingUser.fullName} this is your attendance record`,
       });
     }
   } catch (error) {

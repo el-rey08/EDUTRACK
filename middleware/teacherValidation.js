@@ -1,26 +1,24 @@
 const joiValidation = require('@hapi/joi')
 exports.singUpVlidator = async (req, res, next) => {
-  console.log("Incoming data:", req.body); // Log req.body before validation
-
   const Schema = joiValidation.object({
     firstName: joiValidation.string().required().min(3).trim().regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/).messages({
-      "any.required": "please provide firstName",
-      "string.empty": "firstName cannot be empty",
+      "any.required": "please provide fullName",
+      "string.empty": "fullName cannot be empty",
       "string.min": "the minimum name must be at least 3 characters long",
       "string.pattern.base": "first name should only contain letters",
     }),
-    lastName: joiValidation.string().required().min(3).trim().regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/).messages({
-      "any.required": "please provide lastName",
-      "string.empty": "lastName cannot be empty",
-      "string.min": "the minimum name must be at least 3 characters long",
-      "string.pattern.base": "last name should only contain letters",
-    }),
-    surnName: joiValidation.string().required().min(3).trim().regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/).messages({
-      "any.required": "please provide surnName",
-      "string.empty": "surnName cannot be empty",
-      "string.min": "the minimum name must be at least 3 characters long",
-      "string.pattern.base": "surname should only contain letters",
-    }),
+    // lastName: joiValidation.string().required().min(3).trim().regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/).messages({
+    //   "any.required": "please provide lastName",
+    //   "string.empty": "lastName cannot be empty",
+    //   "string.min": "the minimum name must be at least 3 characters long",
+    //   "string.pattern.base": "last name should only contain letters",
+    // }),
+    // surnName: joiValidation.string().required().min(3).trim().regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/).messages({
+    //   "any.required": "please provide surnName",
+    //   "string.empty": "surnName cannot be empty",
+    //   "string.min": "the minimum name must be at least 3 characters long",
+    //   "string.pattern.base": "surname should only contain letters",
+    // }),
     email: joiValidation.string().email().min(7).required().messages({
       "any.required": "please provide your email address",
       "string.empty": "email cannot be empty",
@@ -40,18 +38,15 @@ exports.singUpVlidator = async (req, res, next) => {
       'string.pattern.base': 'Marital status must be either "married", "single", or "divorced".',
       'any.required': 'Marital status is required.',
     }),
-    schoolID: joiValidation.number().integer() // Ensure this is present and correct
+    schoolID: joiValidation.number().integer()
   });
 
   const { error } = Schema.validate(req.body);
   if (error) {
-    console.log("Validation error:", error.details); // Log any validation error details
     return res.status(400).json({
       message: error.details[0].message,
     });
   }
-
-  console.log("Validation passed"); // Log when validation passes
   next();
 };
 

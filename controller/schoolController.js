@@ -17,7 +17,6 @@ exports.signUp = async (req, res) => {
   try {
     const {
       schoolName,
-      schoolType,
       schoolAddress,
       schoolPhone,
       schoolEmail,
@@ -25,7 +24,6 @@ exports.signUp = async (req, res) => {
     } = req.body;
     if (
       !schoolName ||
-      !schoolType ||
       !schoolAddress ||
       !schoolPhone ||
       !schoolEmail ||
@@ -50,7 +48,6 @@ exports.signUp = async (req, res) => {
         const image = await cloudinary.uploader.upload(file.path)
     const newData = new schoolModel({
       schoolName,
-      schoolType,
       schoolAddress,
       schoolPhone,
       schoolEmail: schoolEmail.toLowerCase().trim(),
@@ -64,7 +61,7 @@ exports.signUp = async (req, res) => {
       { expiresIn: "30 mins" }
     );
     const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/school/verify/${userToken}`;
-    ;
+    
     let mailOptions = {
       email: newData.schoolEmail,
       subject: "Email Verification",
@@ -294,6 +291,8 @@ exports.deleteTeacher = async (req, res) => {
 exports.verifyEmail = async (req, res) => {
   try {
     const { userToken } = req.params;
+
+    const getUser = await schoolModel.findById(userToken)
     const { email } = jwt.verify(userToken, process.env.JWT_SECRET);
     console.log("Decoded token data:", { email });
     const existingSchool = await schoolModel.findOne({ schoolEmail:email });
@@ -316,7 +315,21 @@ exports.verifyEmail = async (req, res) => {
       message: "School verified successfully",
     });
   } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
+    if (error instanceof jwt.JsonWebTokenError && user.isVerified ==false)  {
+
+
+      return res.json({ message: "Kindly check ur email for new instructions." });
+    }
+    else if (error instanceof jwt.JsonWebTokenError)  {
+      const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/school/verify/${userToken}`;
+    
+    let mailOptions = {
+      email: newData.schoolEmail,
+      subject: "Email Verification",
+      html: signUpTemplate(verifyLink, `${newData.schoolName}`),
+    };
+    await newData.save();
+    await sendMail(mailOptions);
       return res.json({ message: "Link expired." });
     }
     res.status(500).json({

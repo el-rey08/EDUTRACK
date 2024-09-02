@@ -1,7 +1,7 @@
 const date = new Date()
 const mongoose = require('mongoose')
 const studentSchema = new mongoose.Schema({
- firstName:{
+ fullName:{
     type:String,set: (entry) => {
       const capitalize =
       entry.charAt(0).toUpperCase() + entry.slice(1).toLowerCase();
@@ -9,22 +9,7 @@ const studentSchema = new mongoose.Schema({
     require:true,
     trim:true
  },
- surnName:{
-    type:String,set: (entry) => {
-      const capitalize =
-      entry.charAt(0).toUpperCase() + entry.slice(1).toLowerCase();
-        return capitalize;},
-    require:true,
-    trim:true
- },
- lastName:{
-    type:String,set: (entry) => {
-      const capitalize =
-      entry.charAt(0).toUpperCase() + entry.slice(1).toLowerCase();
-        return capitalize;},
-    require:true,
-    trim:true
- },
+ 
  email:{
    type:String,
    unique:true,

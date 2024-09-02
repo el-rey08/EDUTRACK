@@ -1,56 +1,55 @@
 const joiValidation = require("@hapi/joi");
 
 exports.singUpVlidator = async (req, res, next) => {
-  console.log(req.body);
   const Schema = joiValidation.object({
-    firstName: joiValidation
+    fullName: joiValidation
       .string()
       .required()
       .min(3)
       .trim()
       .regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/)
       .messages({
-        "any.required": "please provide firstName",
-        "string.empty": "firstName cannot be empty",
+        "any.required": "please provide fullName",
+        "string.empty": "fullName cannot be empty",
         "string.min": "the minium name must be at least 3 character long",
         "string.pattern.base": "first name should only contain letters",
       }),
-    lastName: joiValidation
-      .string()
-      .required()
-      .min(3)
-      .trim()
-      .regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/)
-      .messages({
-        "any.required": "please provide lastName",
-        "string.empty": "lastName cannot be empty",
-        "string.min": "the minium name must be at least 3 character long",
-        "string.pattern.base": "first name should only contain letters",
-      }),
-    surnName: joiValidation
-      .string()
-      .required()
-      .min(3)
-      .trim()
-      .regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/)
-      .messages({
-        "any.required": "please provide surnName",
-        "string.empty": "surnName cannot be empty",
-        "string.min": "the minium name must be at least 3 character long",
-        "string.pattern.base": "first name should only contain letters",
-      }),
+    // lastName: joiValidation
+    //   .string()
+    //   .required()
+    //   .min(3)
+    //   .trim()
+    //   .regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/)
+    //   .messages({
+    //     "any.required": "please provide lastName",
+    //     "string.empty": "lastName cannot be empty",
+    //     "string.min": "the minium name must be at least 3 character long",
+    //     "string.pattern.base": "first name should only contain letters",
+    //   }),
+    // surnName: joiValidation
+    //   .string()
+    //   .required()
+    //   .min(3)
+    //   .trim()
+    //   .regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/)
+    //   .messages({
+    //     "any.required": "please provide surnName",
+    //     "string.empty": "surnName cannot be empty",
+    //     "string.min": "the minium name must be at least 3 character long",
+    //     "string.pattern.base": "first name should only contain letters",
+    //   }),
 
-    email: joiValidation
-    .string()
-    .email()
-    .min(7)
-    .required()
-    .messages({
-      "any.required": "please provide your email address",
-      "string.empty": "email cannot be empty",
-      "string.email":
-        "invalid email format. please enter a valid email address",
-    }),
+    // email: joiValidation
+    // .string()
+    // .email()
+    // .min(7)
+    // .required()
+    // .messages({
+    //   "any.required": "please provide your email address",
+    //   "string.empty": "email cannot be empty",
+    //   "string.email":
+    //     "invalid email format. please enter a valid email address",
+    // }),
 
     password: joiValidation
       .string()

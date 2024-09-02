@@ -6,12 +6,6 @@ const schoolSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    schoolType: {
-        type: String,
-        required: true,
-        enum: ['secondary', 'high-school', 'college'],
-        default:'secondary'
-    },
     schoolAddress: {
         type: String,
         required: true,
@@ -47,7 +41,6 @@ const schoolSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['admin'],
         default: 'admin'
     },
     schoolPicture:{

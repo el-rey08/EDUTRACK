@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 
 const teacherSchema = new mongoose.Schema({
-    firstName: {
+    fullName: {
         type: String,
         set: (entry) => {
             return entry.charAt(0).toUpperCase() + entry.slice(1).toLowerCase();
@@ -10,22 +10,7 @@ const teacherSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    surnName: {
-        type: String,
-        set: (entry) => {
-            return entry.charAt(0).toUpperCase() + entry.slice(1).toLowerCase();
-        },
-        required: true,
-        trim: true
-    },
-    lastName: {
-        type: String,
-        set: (entry) => {
-            return entry.charAt(0).toUpperCase() + entry.slice(1).toLowerCase();
-        },
-        required: true,
-        trim: true
-    },
+    
     email: {
         type: String,
         unique: true,
@@ -61,10 +46,10 @@ const teacherSchema = new mongoose.Schema({
         type: Number,
         unique: true
     },
-    student: {
+    student: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'student'
-    },
+    }],
     isVerified: {
         type: Boolean,
         default: false
@@ -73,10 +58,9 @@ const teacherSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "school"
     },
-    role: { // Role field for teacher or admin
+    role: {
         type: String,
-        enum: ['teacher', 'admin'],
-        default: 'teacher' // Default to 'teacher'
+        default: 'teacher'
     },
     teacherProfile:{
         type:String

@@ -13,9 +13,7 @@ exports.signUp = async (req, res) => {
   };
   try {
     const {
-      firstName,
-      surnName,
-      lastName,
+      fullName,
       address,
       email,
       password,
@@ -26,9 +24,7 @@ exports.signUp = async (req, res) => {
       schoolID,
     } = req.body;
     if (
-      !firstName ||
-      !lastName ||
-      !surnName ||
+      !fullName ||
       !address ||
       !email ||
       !password ||
@@ -63,11 +59,9 @@ exports.signUp = async (req, res) => {
     const file = req.file;
     const image = await cloudinary.uploader.upload(file.path);
     const data = new teacherModel({
-      firstName,
-      surnName,
-      lastName,
+      fullName,
       address,
-      email,
+      email:email.toLowerCase(),
       password: hashedPassword,
       state,
       teacherID,
@@ -89,7 +83,7 @@ exports.signUp = async (req, res) => {
     let mailOptions = {
       email: data.email,
       subject: "Email Verification",
-      html: signUpTemplate(verifyLink, `${data.firstName} ${data.lastName}`),
+      html: signUpTemplate(verifyLink, `${data.fullName}`),
     };
     await data.save();
     school.teachers.push(data._id);
@@ -140,14 +134,14 @@ exports.signIn = async (req, res) => {
       {
         userId: existingTeacher._id,
         email: existingTeacher.email,
-        name: existingTeacher.firstName,
+        name: existingTeacher.fullName,
         role: existingTeacher.role,
       },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
     res.status(200).json({
-      message: `${existingTeacher.firstName} is logged in`,
+      message: `${existingTeacher.fullName} is logged in`,
       data: existingTeacher,
       userToken,
     });
@@ -213,7 +207,7 @@ exports.resendVerificationEmail = async (req, res) => {
     let mailOptions = {
       email: teacher.email,
       subject: "Verification email",
-      html: verifyTemplate(verifyLink, teacher.firstName),
+      html: verifyTemplate(verifyLink, teacher.fullName),
     };
     await sendMail(mailOptions);
     res.status(200).json({

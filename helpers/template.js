@@ -26,7 +26,7 @@ const signUpTemplate = (verifyLink, firstName) => {
       background-color: #fff;
     }
     .header {
-      background: #007bff;
+      background: #003B31;
       padding: 10px;
       text-align: center;
       border-bottom: 1px solid #ddd;
@@ -45,7 +45,7 @@ const signUpTemplate = (verifyLink, firstName) => {
     }
     .button {
       display: inline-block;
-      background-color: #ff9900;
+      background-color: #003B31;
       color: #fff;
       padding: 10px 20px;
       text-decoration: none;
@@ -56,18 +56,12 @@ const signUpTemplate = (verifyLink, firstName) => {
       box-sizing: border-box;
     }
     .footer {
-      background: #333;
+      background: #003B31;
       padding: 10px;
       text-align: center;
       border-top: 1px solid #ddd;
       font-size: 0.9em;
       color: #ccc;
-    }
-    img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      margin: 20px 0;
     }
     @media screen and (max-width: 600px) {
       .container {
@@ -135,7 +129,7 @@ const signUpTemplate = (verifyLink, firstName) => {
         background-color: #fff;
       }
       .header {
-        background: #007bff;
+        background: #003B31;
         padding: 10px;
         text-align: center;
         border-bottom: 1px solid #ddd;
@@ -146,7 +140,7 @@ const signUpTemplate = (verifyLink, firstName) => {
         color: #333;
       }
       .footer {
-        background: #333;
+        background: #003B31;
         padding: 10px;
         text-align: center;
         border-top: 1px solid #ddd;
@@ -155,7 +149,7 @@ const signUpTemplate = (verifyLink, firstName) => {
       }
       .button {
         display: inline-block;
-        background-color: #ff9900;
+        background-color: #003B31;
         color: #fff;
         padding: 10px 20px;
         text-decoration: none;
@@ -212,7 +206,7 @@ const signUpTemplate = (verifyLink, firstName) => {
             background-color: #fff;
           }
           .header {
-            background: #007bff;
+            background: #003B31;
             padding: 10px;
             text-align: center;
             border-bottom: 1px solid #ddd;
@@ -223,7 +217,7 @@ const signUpTemplate = (verifyLink, firstName) => {
             color: #333;
           }
           .footer {
-            background: #333;
+            background: #003B31;
             padding: 10px;
             text-align: center;
             border-top: 1px solid #ddd;
@@ -232,7 +226,7 @@ const signUpTemplate = (verifyLink, firstName) => {
           }
           .button {
             display: inline-block;
-            background-color: #ff9900;
+            background-color: #003B31;
             color: #fff;
             padding: 10px 20px;
             text-decoration: none;
