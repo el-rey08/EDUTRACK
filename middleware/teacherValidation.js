@@ -1,12 +1,13 @@
 const joiValidation = require('@hapi/joi')
 exports.singUpVlidator = async (req, res, next) => {
   const Schema = joiValidation.object({
-    fullName: joiValidation.string().required().min(3).trim().regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/).messages({
-      "any.required": "please provide fullName",
-      "string.empty": "fullName cannot be empty",
-      "string.min": "the minimum name must be at least 3 characters long",
-      "string.pattern.base": "first name should only contain letters",
+    fullName: joiValidation.string().required().min(3).trim().regex(/^[A-Za-z]+(?:[-' ]?[A-Za-z]+)*$/).messages({
+      "any.required": "Please provide fullName",
+      "string.empty": "FullName cannot be empty",
+      "string.min": "The minimum name must be at least 3 characters long",
+      "string.pattern.base": "Full name should only contain letters, spaces, hyphens, or apostrophes",
     }),
+    
     // lastName: joiValidation.string().required().min(3).trim().regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/).messages({
     //   "any.required": "please provide lastName",
     //   "string.empty": "lastName cannot be empty",
