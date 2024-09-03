@@ -417,7 +417,7 @@ exports.updateProfile = async (req, res) => {
   try {
     const { schoolID } = req.params;
     const file = req.file;
-    const existingSchool = await schoolModel.findOne({ schoolID });
+    const existingSchool = await studentModel.findOne({ schoolID });
     if (!existingSchool) {
       return res.status(404).json({
         status: 'Not Found',
@@ -432,7 +432,7 @@ exports.updateProfile = async (req, res) => {
       const image = await cloudinary.uploader.upload(file.path);
       existingSchool.schoolPicture = image.secure_url;
     }
-    const updatePicture = await schoolModel.findOneAndUpdate(
+    const updatePicture = await studentModel.findOneAndUpdate(
       { schoolID }, 
       { schoolPicture: existingSchool.schoolPicture }, 
       { new: true }
