@@ -5,6 +5,7 @@ const sendMail = require("../helpers/email");
 const { signUpTemplate, verifyTemplate } = require("../helpers/template");
 const schoolModel = require("../models/schoolModel");
 const cloudinary = require('../utils/cloudinary')
+const fs = require('fs')
 const date = new Date();
 
 exports.signUp = async (req, res) => {
@@ -231,5 +232,42 @@ exports.updateStudentClass = async (req, res) => {
     return res.status(200).json({ message: 'Student class updated successfully', data: updatedStudent });
   } catch (error) {
     res.status(500).json(error.message);
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const { studentID } = req.params;
+    const file = req.file;
+    const existingStudent = await studentModel.findOne({ studentID });
+    if (!existingStudent) {
+      return res.status(404).json({
+        status: 'Not Found',
+        message: `No student found with ID ${studentID}`,
+      });
+    }
+    if (file) {
+      if (existingStudent.studentProfile) {
+        const imagePublicId = existingStudent.studentProfile.split('/').pop().split('.')[0];
+        await cloudinary.uploader.destroy(imagePublicId);
+      }
+      const image = await cloudinary.uploader.upload(file.path);
+      existingStudent.studentProfile = image.secure_url;
+    }
+    const updatePicture = await studentModel.findOneAndUpdate(
+      { studentID }, 
+      { studentProfile: existingStudent.studentProfile }, 
+      { new: true }
+    );
+    res.status(200).json({
+      status: 'Success',
+      message: 'Profile picture updated successfully',
+      data: updatePicture,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'Server Error',
+      message: error.message,
+    });
   }
 };

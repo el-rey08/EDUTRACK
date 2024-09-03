@@ -415,6 +415,43 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
+exports.updateProfile = async (req, res) => {
+  try {
+    const { schoolID } = req.params;
+    const file = req.file;
+    const existingSchool = await schoolModel.findOne({ schoolID });
+    if (!existingSchool) {
+      return res.status(404).json({
+        status: 'Not Found',
+        message: `No school found with ID ${schoolID}`,
+      });
+    }
+    if (file) {
+      if (existingSchool.schoolPicture) {
+        const imagePublicId = existingSchool.schoolPicture.split('/').pop().split('.')[0];
+        await cloudinary.uploader.destroy(imagePublicId);
+      }
+      const image = await cloudinary.uploader.upload(file.path);
+      existingSchool.schoolPicture = image.secure_url;
+    }
+    const updatePicture = await schoolModel.findOneAndUpdate(
+      { schoolID }, 
+      { schoolPicture: existingSchool.schoolPicture }, 
+      { new: true }
+    );
+    res.status(200).json({
+      status: 'Success',
+      message: 'Profile picture updated successfully',
+      data: updatePicture,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'Server Error',
+      message: error.message,
+    });
+  }
+};
+
 
 exports.getall = async(req, res)=>{
   try {
