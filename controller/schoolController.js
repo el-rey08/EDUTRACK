@@ -291,45 +291,28 @@ exports.deleteTeacher = async (req, res) => {
 exports.verifyEmail = async (req, res) => {
   try {
     const { userToken } = req.params;
-
-    const getUser = await schoolModel.findById(userToken)
     const { email } = jwt.verify(userToken, process.env.JWT_SECRET);
-    console.log("Decoded token data:", { email });
     const existingSchool = await schoolModel.findOne({ schoolEmail:email });
     if (!existingSchool) {
       return res.status(404).json({
         status: "Not Found",
-        message: "School Not found",
+        message: "school Not found",
       });
     }
     if (existingSchool.isVerified) {
       return res.status(400).json({
         status: "Bad Request",
-        message: "School Already verified",
+        message: "school Already verified",
       });
     }
     existingSchool.isVerified = true;
     await existingSchool.save();
     res.status(200).json({
       status: "ok",
-      message: "School verified successfully",
+      message: "school verified successfully",
     });
   } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError && user.isVerified ==false)  {
-
-
-      return res.json({ message: "Kindly check ur email for new instructions." });
-    }
-    else if (error instanceof jwt.JsonWebTokenError)  {
-      const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/school/verify/${userToken}`;
-    
-    let mailOptions = {
-      email: newData.schoolEmail,
-      subject: "Email Verification",
-      html: signUpTemplate(verifyLink, `${newData.schoolName}`),
-    };
-    await newData.save();
-    await sendMail(mailOptions);
+    if (error instanceof jwt.JsonWebTokenError) {
       return res.json({ message: "Link expired." });
     }
     res.status(500).json({
