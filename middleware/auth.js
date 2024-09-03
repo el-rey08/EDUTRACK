@@ -1,53 +1,6 @@
 const jwt = require("jsonwebtoken");
 const schoolModel = require("../models/schoolModel");
 require("dotenv").config();
-// const authenticate = async (req, res, next) => {
-//   try {
-//     const auth = req.headers.authorization;
-//     if (!auth) {
-//       return res.status(401).json({
-//         message: "Authorization required",
-//       });
-//     }
-//     const token = auth.split(" ")[1];
-//     if (!token) {
-//       return res.status(401).json({
-//         status: "Unauthorized",
-//         message: "No token provided",
-//       });
-//     }
-//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//     const school = await schoolModel.findById(decoded.userId);
-//     if (!school) {
-//       return res.status(403).json({
-//         status: "Forbidden",
-//         message: "Access denied. You are not a principal",
-//       });
-//     }
-
-//     req.user = decoded;
-
-//     next();
-//   } catch (error) {
-//     return res.status(401).json({
-//       status: "Unauthorized",
-//       message: "Invalid or expired token",
-//     });
-//   }
-// };
-
-// const schoolAdmin = (req, res, next) => {
-//   if (req.user && req.user === 'school') {
-//     return next();
-//   } else {
-//     return res.status(403).json({
-//       status: 'Forbidden',
-//       message: 'Access denied. You are not the school admin',
-//     });
-//   }
-// };
-
-
 
 const authenticate = async (req, res, next) => {
   try {
@@ -63,8 +16,6 @@ const authenticate = async (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
-
-    console.log('Decoded JWT:', req.user);  // Log to verify the token content
 
     next();
   } catch (error) {
