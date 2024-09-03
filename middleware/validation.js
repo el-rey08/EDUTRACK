@@ -34,17 +34,17 @@ exports.singUpVlidator = async (req, res, next) => {
     //     "string.pattern.base": "first name should only contain letters",
     //   }),
 
-    // email: joiValidation
-    // .string()
-    // .email()
-    // .min(7)
-    // .required()
-    // .messages({
-    //   "any.required": "please provide your email address",
-    //   "string.empty": "email cannot be empty",
-    //   "string.email":
-    //     "invalid email format. please enter a valid email address",
-    // }),
+    email: joiValidation
+    .string()
+    .email()
+    .min(7)
+    .required()
+    .messages({
+      "any.required": "please provide your email address",
+      "string.empty": "email cannot be empty",
+      "string.email":
+        "invalid email format. please enter a valid email address",
+    }),
 
     password: joiValidation
       .string()
@@ -55,6 +55,7 @@ exports.singUpVlidator = async (req, res, next) => {
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,50}$/
       )
       .messages({
+        "any.required": "please password is required",
         "string.pattern.base":
           "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
         "string.empty": "Password cannot be empty",
@@ -63,7 +64,7 @@ exports.singUpVlidator = async (req, res, next) => {
     .required()
     .pattern(/^(Primary [1-6]|JSS [1-3]|SS [1-3])$/)
     .messages({
-      'string.pattern.name': 'Class must be one of the following: Primary 1-6, JSS 1-3, or SS 1-3.',
+      'string.pattern.name': 'Class must be one of the following: JSS 1-3, or SS 1-3.',
       'any.required': 'Class is required.'
     }),
       address:joiValidation.string().required(),

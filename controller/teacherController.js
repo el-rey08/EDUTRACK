@@ -1,7 +1,7 @@
 const teacherModel = require("../models/teachearModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const sendMail = require("../helpers/email");
+const {sendMail} = require("../helpers/email");
 const { signUpTemplate, verifyTemplate } = require("../helpers/template");
 const schoolModel = require("../models/schoolModel");
 const cloudinary = require('../utils/cloudinary')
@@ -79,7 +79,7 @@ exports.signUp = async (req, res) => {
       { expiresIn: "30min" }
     );
 
-    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/school/verify/${userToken}`;
+    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/teacher/verify/${userToken}`;
 
     let mailOptions = {
       email: data.email,
@@ -204,7 +204,7 @@ exports.resendVerificationEmail = async (req, res) => {
     const userToken = jwt.sign({ email: teacher.email }, process.env.JWT_SECRET, {
       expiresIn: "20mins",
     });
-    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/school/verify/${userToken}`;
+    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/teacher/verify/${userToken}`;
     let mailOptions = {
       email: teacher.email,
       subject: "Verification email",
@@ -240,7 +240,7 @@ exports.forgetPassword = async (req, res) => {
     let mailOptions = {
       email: teacher.email,
       subject: "password reset",
-      html: `please click the link to reset your password: <a href="https://edutrack-v1cr.onrender.com/api/v1/school/verify/${resetToken}>Reset password</a>link expiers in 30min"`,
+      html: `please click the link to reset your password: <a href="https://edutrack-v1cr.onrender.com/api/v1/teacher/verify/${resetToken}>Reset password</a>link expiers in 30min"`,
     };
     await sendMail(mailOptions);
     res.status(200).json({

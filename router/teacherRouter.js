@@ -4,7 +4,7 @@ const { singUpVlidator, logInValidator } = require('../middleware/teacherValidat
 const { signUp, signIn, verifyEmail, updateProfile } = require('../controller/teacherController')
 const { checkAdmin, authenticate } = require('../middleware/auth')
 const router = express.Router()
-router.post('/sign-up',singUpVlidator, authenticate, checkAdmin, signUp);
+router.post('/sign-up',upload.single('teacherProfile'),singUpVlidator, authenticate, checkAdmin, signUp);
 router.post('/sign-in',logInValidator,signIn)
 router.get('/verify-email/:token', verifyEmail)
 router.put('/update-profile',upload.single('teacherProfile'), updateProfile)

@@ -1,7 +1,7 @@
 const studentModel = require("../models/studentModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const sendMail = require("../helpers/email");
+const {sendMail} = require("../helpers/email");
 const { signUpTemplate, verifyTemplate } = require("../helpers/template");
 const schoolModel = require("../models/schoolModel");
 const cloudinary = require('../utils/cloudinary')
@@ -12,7 +12,6 @@ exports.signUp = async (req, res) => {
   const generateID = function () {
     return Math.floor(Math.random() * 10000);
   };
-
   try {
     const {
       fullName,
@@ -65,9 +64,7 @@ exports.signUp = async (req, res) => {
     const file = req.file
         const image = await cloudinary.uploader.upload(file.path)
     const data = new studentModel({
-      firstName,
-      surnName,
-      lastName,
+      fullName,
       email: email.toLowerCase().trim(),
       password: hashedPassword,
       address,
@@ -86,7 +83,7 @@ exports.signUp = async (req, res) => {
       { expiresIn: "30min" }
     );
 
-    const verifyLink =`https://edutrack-v1cr.onrender.com/api/v1/school/verify/${userToken}`;
+    const verifyLink =`https://edutrack-v1cr.onrender.com/api/v1/student/verify/${userToken}`;
     let mailOptions = {
       email: data.email,
       subject: "Email Verification",
@@ -188,21 +185,21 @@ exports.verifyEmail = async (req, res) => {
   try {
     const { userToken } = req.params;
     const { email } = jwt.verify(userToken, process.env.JWT_SECRET);
-    const existingUser = await studentModel.findOne({ email });
-    if (!existingUser) {
+    const student = await studentModel.findOne({ email });
+    if (!student) {
       return res.status(404).json({
         status: "Not Found",
         message: "Student Not found",
       });
     }
-    if (existingUser.isVerified) {
+    if (student.isVerified) {
       return res.status(400).json({
         status: "Bad Request",
         message: "Student Already verified",
       });
     }
-    existingUser.isVerified = true;
-    await existingUser.save();
+    student.isVerified = true;
+    await student.save();
     res.status(200).json({
       status: "ok",
       message: "Student verified successfully",
@@ -213,6 +210,40 @@ exports.verifyEmail = async (req, res) => {
     }
     res.status(500).json({
       status: "server error",
+      message: error.message,
+    });
+  }
+};
+
+exports.resendVerificationEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const student = await studentModel.findOne({ email });
+    if (!student) {
+      return res.status(404).json({
+        message: "school not found",
+      });
+    }
+    if (school.isVerified) {
+      return res.status(400).json({
+        message: "school already verified",
+      });
+    }
+    const userToken = jwt.sign({ email: student.email }, process.env.JWT_SECRET, {
+      expiresIn: "20mins",
+    });
+    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/student/verify/${userToken}`;
+    let mailOptions = {
+      email: student.email,
+      subject: "Verification email",
+      html: verifyTemplate(verifyLink, student.fullName),
+    };
+    await sendMail(mailOptions);
+    res.status(200).json({
+      message: "Verification email resent successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
       message: error.message,
     });
   }
