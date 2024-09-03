@@ -185,7 +185,7 @@ exports.verifyEmail = async (req, res) => {
   try {
     const { userToken } = req.params;
     const { email } = jwt.verify(userToken, process.env.JWT_SECRET);
-    const student = await studentModel.findOne({ email });
+    const student = await studentModel.findOne({ email:email });
     if (!student) {
       return res.status(404).json({
         status: "Not Found",
@@ -224,7 +224,7 @@ exports.resendVerificationEmail = async (req, res) => {
         message: "school not found",
       });
     }
-    if (school.isVerified) {
+    if (student.isVerified) {
       return res.status(400).json({
         message: "school already verified",
       });
