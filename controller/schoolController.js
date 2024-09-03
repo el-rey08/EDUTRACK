@@ -10,7 +10,6 @@ const fs = require('fs')
 const date = new Date();
 
 exports.signUp = async (req, res) => {
-  console.log("request body",req.body);
   const generateID = function () {
     return Math.floor(1000 + Math.random() * 9000);
   };

@@ -1,6 +1,5 @@
 const joiValidation = require('@hapi/joi')
 exports.signUpValidation = async (req, res, next)=> {
-  console.log("request body" ,req.body);
     const Schema = joiValidation.object({
         schoolName:joiValidation
         .string()

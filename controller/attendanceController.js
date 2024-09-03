@@ -31,7 +31,7 @@ exports.takeAttendance = async (req, res) => {
         // Send emails for absent or late students
         for (const record of studentAttendance) {
             if (record.status === 'absent' || record.status === 'late') {
-                const student = await Student.findById(record.student);
+                const student = await studentModel.findById(record.student);
                 if (student) {
                     await sendAttendanceEmail(student, record.status);
                 }

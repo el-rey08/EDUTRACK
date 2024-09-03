@@ -75,8 +75,6 @@ const authenticate = async (req, res, next) => {
 const checkAdminOrTeacher = async (req, res, next) => {
   try {
     const user = await schoolModel.findById(req.user.userId);
-
-    console.log('User retrieved:', user);
     
     if (user && (user.role === 'admin' || user.role === 'teacher')) {
       // If the user is either an admin or a teacher, allow them to proceed

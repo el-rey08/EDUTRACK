@@ -80,7 +80,7 @@ exports.signUp = async (req, res) => {
     const userToken = jwt.sign(
       { id: data.studentID, email: data.email },
       process.env.JWT_SECRET,
-      { expiresIn: "30min" }
+      { expiresIn: "30 mins" }
     );
 
     const verifyLink =`https://edutrack-v1cr.onrender.com/api/v1/student/verify/${userToken}`;
