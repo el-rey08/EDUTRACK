@@ -9,5 +9,5 @@ router.post('/sign-in',logInValidator,signIn)
 router.get('/verify/:userToken',verifyEmail)
 router.get('/resend-link', authenticate,checkAdminOrTeacher,resendVerificationEmail)
 router.put('/update-class',authenticate,checkAdminOrTeacher,updateStudentClass)
-router.put('/update-profile',upload.single('studentProfile'), updateProfile)
+router.put('/update-profile',upload.single('studentProfile'),authenticate, updateProfile)
 module.exports = router 
