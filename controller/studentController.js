@@ -189,20 +189,20 @@ exports.verifyEmail = async (req, res) => {
     if (!student) {
       return res.status(404).json({
         status: "Not Found",
-        message: "Student Not found",
+        message: "student Not found",
       });
     }
     if (student.isVerified) {
       return res.status(400).json({
         status: "Bad Request",
-        message: "Student Already verified",
+        message: "student Already verified",
       });
     }
     student.isVerified = true;
     await student.save();
     res.status(200).json({
       status: "ok",
-      message: "Student verified successfully",
+      message: "student verified successfully",
     });
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {

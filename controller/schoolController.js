@@ -326,7 +326,6 @@ exports.resendVerificationEmail = async (req, res) => {
   try {
     const { email } = req.body;
     const school = await schoolModel.findOne({ shoolEmail:email });
-    console.log("Decoded token data:", { email });
     if (!school) {
       return res.status(404).json({
         message: "school not found",
