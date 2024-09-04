@@ -28,7 +28,7 @@ router.post("/log-in", logInValidator, signIn);
 router.get('/verify/:userToken', verifyEmail)
 router.post("/resend-verify", resendVerificationEmail);
 router.post("/forget-password", forgetPassword);
-router.post("/reset-passord/:userToken", resetPassword);
+router.post("/reset-passord/:resetToken", resetPassword);
 router.get("/get-teachers", authenticate,checkAdmin,getAllTeachers);
 router.get('/get-students',authenticate,checkAdmin,checkAdminOrTeacher,getAllStudents)
 router.get('/getOne-student', authenticate,checkAdmin,checkAdminOrTeacher,getOneStudent)

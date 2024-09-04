@@ -63,18 +63,52 @@ const signUpTemplate = (verifyLink, firstName) => {
       font-size: 0.9em;
       color: #ccc;
     }
-    @media screen and (max-width: 600px) {
-      .container {
-        margin: 20px;
-        padding: 15px;
-      }
-      .header h1 {
-        font-size: 1.2em;
-      }
-      .content {
-        padding: 15px;
-      }
-    }
+    /* Media Queries */
+        @media only screen and (max-width: 768px) {
+            /* For tablets */
+            .container {
+                width: 90%;
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .content {
+                font-size: 15px;
+            }
+
+            .button {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+
+        @media only screen and (max-width: 480px) {
+            /* For phones */
+            .container {
+                width: 95%;
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .content {
+                font-size: 14px;
+            }
+
+            .button {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .footer {
+                font-size: 12px;
+            }
+
   </style>
 </head>
 <body>
@@ -147,6 +181,7 @@ const signUpTemplate = (verifyLink, firstName) => {
         font-size: 0.9em;
         color: #ccc;
       }
+        
       .button {
         display: inline-block;
         background-color: #003B31;
@@ -155,6 +190,52 @@ const signUpTemplate = (verifyLink, firstName) => {
         text-decoration: none;
         border-radius: 5px;
       }
+        /* Media Queries */
+        @media only screen and (max-width: 768px) {
+            /* For tablets */
+            .container {
+                width: 90%;
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .content {
+                font-size: 15px;
+            }
+
+            .button {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+
+        @media only screen and (max-width: 480px) {
+            /* For phones */
+            .container {
+                width: 95%;
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .content {
+                font-size: 14px;
+            }
+
+            .button {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .footer {
+                font-size: 12px;
+            }
+
       </style>
       </head>
     <body>
@@ -232,6 +313,51 @@ const signUpTemplate = (verifyLink, firstName) => {
             text-decoration: none;
             border-radius: 5px;
           }
+            /* Media Queries */
+        @media only screen and (max-width: 768px) {
+            /* For tablets */
+            .container {
+                width: 90%;
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .content {
+                font-size: 15px;
+            }
+
+            .button {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+        @media only screen and (max-width: 480px) {
+            /* For phones */
+            .container {
+                width: 95%;
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .content {
+                font-size: 14px;
+            }
+
+            .button {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .footer {
+                font-size: 12px;
+            }
+
         </style>
       </head>
       <body>
@@ -257,7 +383,111 @@ const signUpTemplate = (verifyLink, firstName) => {
     `;
   };
 
-  
-  
-  module.exports = { signUpTemplate, verifyTemplate, forgotPasswordTemplate,};
+  // template.js
+const generateAttendanceEmailTemplate = (subject, message, schoolName) => {
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${subject}</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f4f4f4;
+                color: #333;
+            }
+            .container {
+                width: 100%;
+                max-width: 600px;
+                margin: 0 auto;
+                background-color: #ffffff;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            .header {
+                background-color: #003B31;
+                padding: 20px;
+                text-align: center;
+                color: #ffffff;
+            }
+            .header h1 {
+                margin: 0;
+                font-size: 24px;
+            }
+            .content {
+                padding: 20px;
+                font-size: 16px;
+                line-height: 1.6;
+            }
+            .footer {
+                background-color: #003B31;
+                padding: 10px;
+                text-align: center;
+                color: #ffffff;
+                font-size: 14px;
+            }
+            @media only screen and (max-width: 1200px) {
+                .container {
+                    width: 90%;
+                    padding: 15px;
+                }
+                .content {
+                    font-size: 15px;
+                }
+                .header h1 {
+                    font-size: 22px;
+                }
+            }
+            @media only screen and (max-width: 768px) {
+                .container {
+                    width: 95%;
+                    padding: 10px;
+                }
+                .content {
+                    font-size: 14px;
+                }
+                .header h1 {
+                    font-size: 20px;
+                }
+            }
+            @media only screen and (max-width: 480px) {
+                .container {
+                    width: 100%;
+                    padding: 5px;
+                }
+                .content {
+                    font-size: 13px;
+                }
+                .header h1 {
+                    font-size: 18px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>${subject}</h1>
+            </div>
+            <div class="content">
+                <p>Dear Parent,</p>
+                <p>${message}</p>
+                <p>If you have any questions, please contact the school office.</p>
+                <p>Best regards,<br>Your School Team</p>
+            </div>
+            <div class="footer">
+                <p>&copy; 2024 ${schoolName}. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+  `;
+};
+
+module.exports = { signUpTemplate, verifyTemplate, forgotPasswordTemplate, generateAttendanceEmailTemplate};
   
