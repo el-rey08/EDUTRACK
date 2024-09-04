@@ -45,8 +45,8 @@ exports.signUp = async (req, res) => {
     let schoolID = generateID();
     let schoolPicture = ''
     const file = req.file
-    if(file){
-      const image = await cloudinary.uploader.upload(file.path)
+    if(req.file){
+      const image = await cloudinary.uploader.upload(req.file.path)
       schoolPicture = image.secure_url
     }
     const newData = new schoolModel({

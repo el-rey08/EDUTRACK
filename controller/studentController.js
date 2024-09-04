@@ -63,8 +63,8 @@ exports.signUp = async (req, res) => {
     const studentID = generateID();
     let studentProfile =''
     const file = req.file
-    if(file){
-      const image = await cloudinary.uploader.upload(file.path)
+    if(req.file){
+      const image = await cloudinary.uploader.upload(req.file.path)
       studentProfile = image.secure_url
     };
     const data = new studentModel({

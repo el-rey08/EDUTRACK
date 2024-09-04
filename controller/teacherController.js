@@ -59,8 +59,8 @@ exports.signUp = async (req, res) => {
     let teacherID = generateID();
     let teacherProfile = ''
     const file = req.file;
-    if(file){
-      const image = await cloudinary.uploader.upload(file.path);
+    if(req.file){
+      const image = await cloudinary.uploader.upload(req.file.path);
       teacherProfile = image.secure_url
     }
     
