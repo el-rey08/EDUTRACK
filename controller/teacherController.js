@@ -57,8 +57,13 @@ exports.signUp = async (req, res) => {
     const saltedPassword = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, saltedPassword);
     let teacherID = generateID();
+    let teacherProfile = ''
     const file = req.file;
-    const image = await cloudinary.uploader.upload(file.path);
+    if(file){
+      const image = await cloudinary.uploader.upload(file.path);
+      teacherProfile = image.secure_url
+    }
+    
     const data = new teacherModel({
       fullName,
       address,
@@ -70,9 +75,15 @@ exports.signUp = async (req, res) => {
       gender,
       maritalStatus,
       phoneNumber,
-      teacherProfile: image.secure_url,
+      teacherProfile
     });
-
+    fs.unlink(file.path, (err) => {
+      if (err) {
+        console.error('Error deleting the file from local storage:', err);
+      } else {
+        console.log('File deleted from local storage');
+      }
+    });
     const userToken = jwt.sign(
       { id: data.teacherID, email: data.email },
       process.env.JWT_SECRET,
