@@ -312,7 +312,7 @@ exports.updateProfile = async (req, res) => {
     if (!existingTeacher) {
       return res.status(404).json({
         status: 'Not Found',
-        message: `No student found with ID ${teacherID}`,
+        message: `No teacher found with ID ${teacherID}`,
       });
     }
     if (file) {
