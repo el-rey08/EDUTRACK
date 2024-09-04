@@ -48,6 +48,13 @@ exports.signUp = async (req, res) => {
     if(req.file){
       const image = await cloudinary.uploader.upload(req.file.path)
       schoolPicture = image.secure_url
+      fs.unlink(file.path, (err) => {
+        if (err) {
+          console.error('Error deleting the file from local storage:', err);
+        } else {
+          console.log('File deleted from local storage');
+        }
+      });
     }
     const newData = new schoolModel({
       schoolName,
@@ -58,13 +65,7 @@ exports.signUp = async (req, res) => {
       schoolID,
       schoolPicture
     });
-    fs.unlink(file.path, (err) => {
-      if (err) {
-        console.error('Error deleting the file from local storage:', err);
-      } else {
-        console.log('File deleted from local storage');
-      }
-    });
+    
     const userToken = jwt.sign(
       { id: newData.schoolID, email: newData.schoolEmail },
       process.env.JWT_SECRET,
