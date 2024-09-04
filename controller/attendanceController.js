@@ -1,7 +1,7 @@
-const attendanceModel = require('../models/attendanceModel'); // Adjust the path if necessary
-const {sendAttendanceEmail} = require('../helpers/email'); // Email function to send notifications
-const studentModel = require('../models/studentModel'); // Model for student data
-const date = new Date(); // Current date
+const attendanceModel = require('../models/attendanceModel');
+const {sendAttendanceEmail} = require('../helpers/email');
+const studentModel = require('../models/studentModel');
+const date = new Date();
 
 exports.takeAttendance = async (req, res) => {
     try {
@@ -9,7 +9,7 @@ exports.takeAttendance = async (req, res) => {
 
         const today = new Date().setHours(0, 0, 0, 0);
         let attendance = await attendanceModel.findOne({
-            teacher: teacherId,
+            teachers: teacherId,
             school: schoolId,
             date: today
         });
@@ -19,19 +19,17 @@ exports.takeAttendance = async (req, res) => {
         }
 
         attendance = new attendanceModel({
-            teacher: teacherId,
+            teachers: teacherId,
             school: schoolId,
             students: studentAttendance
         });
 
         await attendance.save();
-
-        // Send emails for absent or late students
         for (const record of studentAttendance) {
             if (record.status === 'absent' || record.status === 'late') {
                 const student = await studentModel.findById(record.student);
                 if (student) {
-                    await sendAttendanceEmail(student, record.status, schoolId); // Added schoolId to pass to the email function
+                    await sendAttendanceEmail(student, record.status, schoolId);
                 }
             }
         }
