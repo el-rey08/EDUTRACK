@@ -61,12 +61,13 @@ exports.signUp = async (req, res) => {
     const saltedPassword = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, saltedPassword);
     const studentID = generateID();
-    let studentProfile =''
     const file = req.file
-    if(req.file){
-      const image = await cloudinary.uploader.upload(req.file.path)
-      studentProfile = image.secure_url
+    if(!file){
+      return res.status(400).json({
+        message:'student picture is required'
+      })
     };
+    const image = await cloudinary.uploader.upload(req.file)
     const data = new studentModel({
       fullName,
       email: email.toLowerCase().trim(),
@@ -79,7 +80,7 @@ exports.signUp = async (req, res) => {
       school:school._id,
       dateOfBirth,
       class: studentClass,
-      studentProfile
+      studentProfile:image.secure_url
     });
     fs.unlink(file.path, (err) => {
       if (err) {

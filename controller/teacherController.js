@@ -57,12 +57,13 @@ exports.signUp = async (req, res) => {
     const saltedPassword = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, saltedPassword);
     let teacherID = generateID();
-    let teacherProfile = ''
     const file = req.file;
-    if(req.file){
-      const image = await cloudinary.uploader.upload(req.file.path);
-      teacherProfile = image.secure_url
+    if(!file){
+      return res.state(400).json({
+        message:'teachers profile is required'
+      })
     }
+    const image = await cloudinary.uploader.upload(req.file.path);
     
     const data = new teacherModel({
       fullName,
@@ -75,7 +76,7 @@ exports.signUp = async (req, res) => {
       gender,
       maritalStatus,
       phoneNumber,
-      teacherProfile
+      teacherProfile:image.secure_url
     });
     fs.unlink(file.path, (err) => {
       if (err) {
