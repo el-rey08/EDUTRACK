@@ -63,52 +63,18 @@ const signUpTemplate = (verifyLink, firstName) => {
       font-size: 0.9em;
       color: #ccc;
     }
-    /* Media Queries */
-        @media only screen and (max-width: 768px) {
-            /* For tablets */
-            .container {
-                width: 90%;
-                padding: 15px;
-            }
-
-            .header h1 {
-                font-size: 22px;
-            }
-
-            .content {
-                font-size: 15px;
-            }
-
-            .button {
-                padding: 10px 15px;
-                font-size: 14px;
-            }
-        }
-
-        @media only screen and (max-width: 480px) {
-            /* For phones */
-            .container {
-                width: 95%;
-                padding: 10px;
-            }
-
-            .header h1 {
-                font-size: 20px;
-            }
-
-            .content {
-                font-size: 14px;
-            }
-
-            .button {
-                padding: 10px;
-                font-size: 13px;
-            }
-
-            .footer {
-                font-size: 12px;
-            }
-
+    @media screen and (max-width: 600px) {
+      .container {
+        margin: 20px;
+        padding: 15px;
+      }
+      .header h1 {
+        font-size: 1.2em;
+      }
+      .content {
+        padding: 15px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -190,52 +156,18 @@ const signUpTemplate = (verifyLink, firstName) => {
         text-decoration: none;
         border-radius: 5px;
       }
-        /* Media Queries */
-        @media only screen and (max-width: 768px) {
-            /* For tablets */
-            .container {
-                width: 90%;
-                padding: 15px;
-            }
-
-            .header h1 {
-                font-size: 22px;
-            }
-
-            .content {
-                font-size: 15px;
-            }
-
-            .button {
-                padding: 10px 15px;
-                font-size: 14px;
-            }
-        }
-
-        @media only screen and (max-width: 480px) {
-            /* For phones */
-            .container {
-                width: 95%;
-                padding: 10px;
-            }
-
-            .header h1 {
-                font-size: 20px;
-            }
-
-            .content {
-                font-size: 14px;
-            }
-
-            .button {
-                padding: 10px;
-                font-size: 13px;
-            }
-
-            .footer {
-                font-size: 12px;
-            }
-
+        @media screen and (max-width: 600px) {
+      .container {
+        margin: 20px;
+        padding: 15px;
+      }
+      .header h1 {
+        font-size: 1.2em;
+      }
+      .content {
+        padding: 15px;
+      }
+    }
       </style>
       </head>
     <body>
@@ -313,51 +245,18 @@ const signUpTemplate = (verifyLink, firstName) => {
             text-decoration: none;
             border-radius: 5px;
           }
-            /* Media Queries */
-        @media only screen and (max-width: 768px) {
-            /* For tablets */
-            .container {
-                width: 90%;
-                padding: 15px;
-            }
-
-            .header h1 {
-                font-size: 22px;
-            }
-
-            .content {
-                font-size: 15px;
-            }
-
-            .button {
-                padding: 10px 15px;
-                font-size: 14px;
-            }
-        }
-        @media only screen and (max-width: 480px) {
-            /* For phones */
-            .container {
-                width: 95%;
-                padding: 10px;
-            }
-
-            .header h1 {
-                font-size: 20px;
-            }
-
-            .content {
-                font-size: 14px;
-            }
-
-            .button {
-                padding: 10px;
-                font-size: 13px;
-            }
-
-            .footer {
-                font-size: 12px;
-            }
-
+            @media screen and (max-width: 600px) {
+      .container {
+        margin: 20px;
+        padding: 15px;
+      }
+      .header h1 {
+        font-size: 1.2em;
+      }
+      .content {
+        padding: 15px;
+      }
+    }
         </style>
       </head>
       <body>
