@@ -16,22 +16,19 @@ exports.signUp = async (req, res) => {
     const {
       fullName,
       email,
-      password,
       address,
       state,
       gender,
       dateOfBirth,
-      schoolID,
       class: studentClass,
     } = req.body;
+    const schoolID = req.user.schoolID 
 
     if (
       !fullName ||
       !email ||
-      !password ||
       !address ||
       !state ||
-      !schoolID ||
       !gender ||
       !dateOfBirth ||
       !studentClass
@@ -41,7 +38,6 @@ exports.signUp = async (req, res) => {
         message: "Please, all fields are required",
       });
     }
-
     const existingUser = await studentModel.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
@@ -49,7 +45,6 @@ exports.signUp = async (req, res) => {
         message: "This Student already exists",
       });
     }
-
     const school = await schoolModel.findOne({schoolID})
     if (!school) {
       return res.status(400).json({
@@ -57,10 +52,9 @@ exports.signUp = async (req, res) => {
         message:`No school with id ${schoolID}`
       })
     }
-
-    const saltedPassword = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, saltedPassword);
     const studentID = generateID();
+    const saltedPassword = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(studentID.toString(), saltedPassword);
     const file = req.file
     if(!file){
       return res.status(400).json({
@@ -94,14 +88,13 @@ exports.signUp = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "30 mins" }
     );
-
     const verifyLink =`https://edutrack-v1cr.onrender.com/api/v1/student/verify/${userToken}`;
+    const template = signUpTemplate(verifyLink, `${data.fullName}`, `${data.studentID}`)
     let mailOptions = {
       email: data.email,
       subject: "Email Verification",
-      html: signUpTemplate(verifyLink, `${data.fullName}`),
+      html: template
     };
-
     await data.save()
     school.students.push(data._id)
     await school.save()
@@ -122,37 +115,37 @@ exports.signUp = async (req, res) => {
 
 exports.signIn = async (req, res) => {
   try {
-    const { studentID, password } = req.body;
-    const existingUser = await studentModel.findOne({ studentID });
+    const { email, studentID } = req.body;
+    const existingUser = await studentModel.findOne({ email });
+
     if (!existingUser) {
       return res.status(404).json({
         status: "Not Found",
-        message:
-          "No Student with the Above information kindly see the admin for registration",
+        message: "No student with the provided email. Please check with the admin.",
       });
     }
+    const checkPassword = await bcrypt.compare(studentID.toString(), existingUser.password);
 
-    const checkPassword = await bcrypt.compare(password, existingUser.password);
     if (!checkPassword) {
       return res.status(400).json({
         status: "Bad request",
-        message: "incorrect password please check your password",
+        message: "Incorrect studentID. Please check and try again.",
       });
     }
 
     if (!existingUser.isVerified) {
       return res.status(400).json({
         status: "Bad request",
-        message:
-          "Student not verified please check your email for verification link",
+        message: "Student not verified. Please check your email for the verification link.",
       });
     }
+
     const userToken = jwt.sign(
       {
-        userId: existingUser.studentID,
+        userId: existingUser._id,
         email: existingUser.email,
-        name: existingUser.firstName,
-        role: existingUser.role,
+        name: existingUser.fullName,
+        role: 'student', 
       },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
@@ -164,7 +157,7 @@ exports.signIn = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({
-      status: "server error",
+      status: "Server error",
       message: error.message,
     });
   }

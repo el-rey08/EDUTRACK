@@ -5,12 +5,12 @@ const date = new Date();
 
 exports.takeAttendance = async (req, res) => {
     try {
-        const { teacherId, schoolId, studentAttendance } = req.body;
+        const { teacherID, schoolID, studentAttendance } = req.body;
 
         const today = new Date().setHours(0, 0, 0, 0);
         let attendance = await attendanceModel.findOne({
-            teachers: teacherId,
-            school: schoolId,
+            teachers: teacherID,
+            school: schoolID,
             date: today
         });
 
@@ -19,8 +19,8 @@ exports.takeAttendance = async (req, res) => {
         }
 
         attendance = new attendanceModel({
-            teachers: teacherId,
-            school: schoolId,
+            teachers: teacherID,
+            school: schoolID,
             students: studentAttendance
         });
 
@@ -29,7 +29,7 @@ exports.takeAttendance = async (req, res) => {
             if (record.status === 'absent' || record.status === 'late') {
                 const student = await studentModel.findById(record.student);
                 if (student) {
-                    await sendAttendanceEmail(student, record.status, schoolId);
+                    await sendAttendanceEmail(student, record.status, schoolID);
                 }
             }
         }
