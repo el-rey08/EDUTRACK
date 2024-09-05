@@ -1,4 +1,5 @@
 const joiValidation = require('@hapi/joi')
+const teacherModel = require('../models/teachearModel')
 exports.singUpVlidator = async (req, res, next) => {
   const Schema = joiValidation.object({
     fullName: joiValidation.string().required().min(3).trim().regex(/^[A-Za-z]+(?:[-' ]?[A-Za-z]+)*$/).messages({
