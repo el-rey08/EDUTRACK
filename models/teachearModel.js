@@ -24,19 +24,13 @@ const teacherSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    state: {
-        type: String,
-        required: true
-    },
+   
     gender: {
         type: String,
         required: true,
         enum: ['male', 'female']
     },
-    phoneNumber: {
-        type: String,
-        required: true
-    },
+    
     maritalStatus: {
         type: String,
         required: true,

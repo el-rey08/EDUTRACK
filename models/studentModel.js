@@ -23,17 +23,6 @@ const studentSchema = new mongoose.Schema({
     type:String,
     require:true
  },
- state:{
-    type:String,
-    require:true
- },
- age:{
-   type:String,
- },
- datheOfBirth:{
-   type:Number,
-   require:true
- },
  gender:{
     type:String,
     require:true,

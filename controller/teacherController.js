@@ -18,20 +18,16 @@ exports.signUp = async (req, res) => {
       fullName,
       address,
       email,
-      state,
       gender,
       maritalStatus,
-      phoneNumber,
     } = req.body;
     const schoolID = req.user.schoolID;
     if (
       !fullName ||
       !address ||
       !email ||
-      !state ||
       !gender ||
-      !maritalStatus ||
-      !phoneNumber
+      !maritalStatus
     ) {
       return res.status(400).json({
         status: "Bad request",
@@ -67,12 +63,10 @@ exports.signUp = async (req, res) => {
       address,
       email: email.toLowerCase(),
       password: hashedPassword,
-      state,
       teacherID,
       school: school._id,
       gender,
       maritalStatus,
-      phoneNumber,
       teacherProfile: image.secure_url,
     });
 

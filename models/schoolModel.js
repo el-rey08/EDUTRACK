@@ -10,10 +10,6 @@ const schoolSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    schoolPhone: {
-        type: String,
-        required: true
-    },
     schoolEmail: {
         type: String,
         required: true,

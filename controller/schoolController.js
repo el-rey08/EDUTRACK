@@ -17,14 +17,12 @@ exports.signUp = async (req, res) => {
     const {
       schoolName,
       schoolAddress,
-      schoolPhone,
       schoolEmail,
       schoolPassword,
     } = req.body;
     if (
       !schoolName ||
       !schoolAddress ||
-      !schoolPhone ||
       !schoolEmail ||
       !schoolPassword
     ) {
@@ -53,7 +51,6 @@ exports.signUp = async (req, res) => {
     const newData = new schoolModel({
       schoolName,
       schoolAddress,
-      schoolPhone,
       schoolEmail: schoolEmail.toLowerCase().trim(),
       schoolPassword: hashedPassword,
       schoolID,
