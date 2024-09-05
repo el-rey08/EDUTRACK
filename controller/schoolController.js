@@ -49,7 +49,7 @@ exports.signUp = async (req, res) => {
       message:'School image is required'
      })
     }
-    const image = await cloudinary.uploader.upload(req.file)
+    const image = await cloudinary.uploader.upload(req.file.path)
     const newData = new schoolModel({
       schoolName,
       schoolAddress,
