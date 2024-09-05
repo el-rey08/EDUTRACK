@@ -22,14 +22,6 @@ const attendanceSchema = new mongoose.Schema({
             enum: ['present', 'absent', 'late'],
             required: true
         },
-        // checkInTime: {
-        //     type: Date,
-        //     required: false
-        // },
-        // checkOutTime: {
-        //     type: Date,
-        //     required: false
-        // }
     }],
     date: {
         type: Date,
