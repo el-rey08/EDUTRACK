@@ -163,28 +163,7 @@ exports.signIn = async (req, res) => {
   }
 };
 
-exports.getOne = async (req, res) => {
-  try {
-    const { studentID } = req.params;
-    const existingUser = await studentModel.findOne({ studentID });
-    if (!existingUser) {
-      return res.status(404).json({
-        status: "Not Found",
-        message: "Student Not found",
-      });
-    } else {
-      return res.status(200).json({
-        status: "Request ok",
-        message: `${existingUser.fullName} this is your attendance record`,
-      });
-    }
-  } catch (error) {
-    es.status(500).json({
-      status: "server error",
-      message: error.message,
-    });
-  }
-};
+
 
 exports.verifyEmail = async (req, res) => {
   try {
