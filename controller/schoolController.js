@@ -172,7 +172,6 @@ exports.getOneStudent = async (req, res) => {
 exports.getAllTeachers = async (req, res) => {
   try {
     const { userId} = req.user;
-    console.log(userId)
     const school = await schoolModel.findOne({_id: userId }).populate('teachers');
     console.log(school)
     if (!school) {

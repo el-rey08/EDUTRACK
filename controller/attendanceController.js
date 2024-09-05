@@ -56,7 +56,7 @@ exports.getStudentAttendance = async (req, res) => {
                 message: 'Student Not Found',
             });
         }
-        const attendance = await attendanceModel.findOne({'students.student': studentID,}).populate('students.student', 'fullName');
+        const attendance = await attendanceModel.findOne({'students.student': studentID,});
         if (!attendance) {
             return res.status(400).json({
                 status: 'Bad Request',
@@ -82,3 +82,26 @@ exports.getStudentAttendance = async (req, res) => {
         });
     }
 };
+
+exports.getAllStudentAttendance = async (req, res)=>{
+    try {
+        const {schoolID}= req.params
+        const attendanceRecord = await attendanceModel.find({school:schoolID})
+        if(!attendanceRecord||attendanceRecord.length===0){
+            return res.status(400).json({
+                status:'Bad Request',
+                message:'No Attendabce Record Found for this school'
+            })
+        }
+        res.status(200).json({
+            status:'OK',
+            message:'school attendance record retrived',
+            data:attendanceRecord
+        })
+    } catch (error) {
+        res.status(500).json({
+            status:'Server Error',
+            message:error.message
+        })
+    }
+}
