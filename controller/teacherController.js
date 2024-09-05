@@ -126,7 +126,7 @@ exports.signIn = async (req, res) => {
       });
     }
     const checkPassword = await bcrypt.compare(
-      password,
+      password.toString(),
       existingTeacher.password
     );
     if (!checkPassword) {
