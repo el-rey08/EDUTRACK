@@ -70,7 +70,7 @@ exports.logInValidator = async (req, res, next) => {
     password: joiValidation
       .string()
       .required()
-      .min(8)
+      .min(4)
       .max(50)
       .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,50}$/
