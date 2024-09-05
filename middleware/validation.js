@@ -46,20 +46,20 @@ exports.singUpVlidator = async (req, res, next) => {
         "invalid email format. please enter a valid email address",
     }),
 
-    password: joiValidation
-      .string()
-      .required()
-      .min(8)
-      .max(50)
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,50}$/
-      )
-      .messages({
-        "any.required": "please password is required",
-        "string.pattern.base":
-          "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
-        "string.empty": "Password cannot be empty",
-      }),
+    // password: joiValidation
+    //   .string()
+    //   .required()
+    //   .min(8)
+    //   .max(50)
+    //   .regex(
+    //     /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,50}$/
+    //   )
+    //   .messages({
+    //     "any.required": "please password is required",
+    //     "string.pattern.base":
+    //       "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
+    //     "string.empty": "Password cannot be empty",
+    //   }),
       class: joiValidation.string()
     .required()
     .pattern(/^(Primary [1-6]|JSS [1-3]|SS [1-3])$/)

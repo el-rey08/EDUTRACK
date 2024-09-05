@@ -25,12 +25,12 @@ exports.singUpVlidator = async (req, res, next) => {
       "string.empty": "email cannot be empty",
       "string.email": "invalid email format. please enter a valid email address",
     }),
-    password: joiValidation.string().required().min(8).max(50).regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,50}$/
-    ).messages({
-      "string.pattern.base": "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
-      "string.empty": "Password cannot be empty",
-    }),
+    // password: joiValidation.string().required().min(8).max(50).regex(
+    //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,50}$/
+    // ).messages({
+    //   "string.pattern.base": "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
+    //   "string.empty": "Password cannot be empty",
+    // }),
     address: joiValidation.string().required(),
     gender: joiValidation.string().required().valid("male", "female"),
     phoneNumber: joiValidation.string().regex(/^\d{11}$/).message('Phone number must be exactly 11 digits'),
