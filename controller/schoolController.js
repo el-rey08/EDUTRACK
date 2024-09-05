@@ -129,6 +129,7 @@ exports.signIn = async (req, res) => {
         email: existingSchool.schoolEmail,
         name: existingSchool.schoolName,
         role: existingSchool.role,
+        schoolID: existingSchool.schoolID
       },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
