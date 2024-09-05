@@ -49,7 +49,7 @@ exports.signUp = async (req, res) => {
     }
     const image = await cloudinary.uploader.upload(req.file.path)
     const newData = new schoolModel({
-      schoolName,
+      schoolName:schoolName.trim(),
       schoolAddress,
       schoolEmail: schoolEmail.toLowerCase().trim(),
       schoolPassword: hashedPassword,

@@ -14,7 +14,6 @@ exports.signUpValidation = async (req, res, next)=> {
         "string.pattern.base": "school name should only contain letters",
       }),
       schoolAddress:joiValidation.string().required(),
-      schoolPhone:joiValidation.string().regex(/^\d{11}$/).message('Phone number must be exactly 11 digits'),
       schoolEmail:joiValidation
       .string()
     .email()
@@ -35,6 +34,7 @@ exports.signUpValidation = async (req, res, next)=> {
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,50}$/
       )
       .messages({
+        "any.required": "please enter school password",
         "string.pattern.base":
           "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
         "string.empty": "Password cannot be empty",

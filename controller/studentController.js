@@ -17,9 +17,7 @@ exports.signUp = async (req, res) => {
       fullName,
       email,
       address,
-      state,
       gender,
-      dateOfBirth,
       class: studentClass,
     } = req.body;
     const schoolID = req.user.schoolID 
@@ -28,9 +26,7 @@ exports.signUp = async (req, res) => {
       !fullName ||
       !email ||
       !address ||
-      !state ||
       !gender ||
-      !dateOfBirth ||
       !studentClass
     ) {
       return res.status(400).json({
@@ -63,16 +59,13 @@ exports.signUp = async (req, res) => {
     };
     const image = await cloudinary.uploader.upload(req.file.path)
     const data = new studentModel({
-      fullName,
+      fullName:fullName.toLowerCase().trim,
       email: email.toLowerCase().trim(),
       password: hashedPassword,
       address,
-      state,
       gender,
-      age: new Date().getFullYear() - new Date(dateOfBirth).getFullYear(),
       studentID,
       school:school._id,
-      dateOfBirth,
       class: studentClass,
       studentProfile:image.secure_url
     });

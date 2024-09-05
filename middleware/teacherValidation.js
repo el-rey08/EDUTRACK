@@ -16,8 +16,6 @@ exports.singUpVlidator = async (req, res, next) => {
     }),
     address: joiValidation.string().required(),
     gender: joiValidation.string().required().valid("male", "female"),
-    phoneNumber: joiValidation.string().regex(/^\d{11}$/).message('Phone number must be exactly 11 digits'),
-    state: joiValidation.string().required().regex(/^[A-Za-z]+$/),
     maritalStatus: joiValidation.string().required().pattern(/\b(married|single|divorce[sd]?)\b/i).messages({
       'string.pattern.base': 'Marital status must be either "married", "single", or "divorced".',
       'any.required': 'Marital status is required.',

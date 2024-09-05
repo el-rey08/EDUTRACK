@@ -31,15 +31,6 @@ exports.singUpVlidator = async (req, res, next) => {
     }),
       address:joiValidation.string().required(),
         gender:joiValidation.string().required().valid("male","female"),
-        phoneNumber:joiValidation.string().regex(/^\d{11}$/).message('Phone number must be exactly 11 digits'),
-        state:joiValidation.string().required().regex(/^[A-Za-z]+$/),
-        dateOfBirth: joiValidation.string()
-        .required()
-        .pattern(/^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/[0-9]{4}$/)
-        .messages({
-          'string.pattern.base': 'Date of birth must be in the format DD/MM/YYYY.',
-          'any.required': 'Date of birth is a required field.'
-      }),
         
       })
       
