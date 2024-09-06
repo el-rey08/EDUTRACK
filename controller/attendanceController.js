@@ -10,12 +10,16 @@ exports.takeAttendance = async (req, res) => {
     if (!school) {
       return res.status(400).json({ message: "School not found" });
     }
+
     const schoolName = school.schoolName;
+    const attendanceResults = [];
+
     for (const record of studentAttendance) {
       const student = await studentModel.findById(record.student);
       if (!student) {
         return res.status(400).json({ message: `Student not found: ${record.student}` });
       }
+
       let attendance = await attendanceModel.findOne({
         teacher: teacherID,
         school: schoolID,
@@ -24,6 +28,7 @@ exports.takeAttendance = async (req, res) => {
       });
 
       if (!attendance) {
+        // Create new attendance record if not found
         attendance = new attendanceModel({
           teacher: teacherID,
           school: schoolID,
@@ -39,9 +44,11 @@ exports.takeAttendance = async (req, res) => {
           ],
         });
       } else {
+        // Update existing attendance record
         const weekRecord = attendance.attendanceRecords.find(
           (w) => w.week === week
         );
+
         if (weekRecord) {
           weekRecord.days[day] = record.status;
         } else {
@@ -53,19 +60,37 @@ exports.takeAttendance = async (req, res) => {
           });
         }
       }
+
       await attendance.save();
+
+      // Notify parents if the student is absent or late
       if (record.status === "absent" || record.status === "late") {
         if (student.parentEmail) {
           await sendAttendanceEmail(student, record.status, schoolName, day);
         }
       }
+
+      // Add the saved attendance record to the results
+      const savedRecord = attendance.attendanceRecords.find((w) => w.week === week);
+
+      attendanceResults.push({
+        studentName: student.fullName,
+        week: savedRecord.week,
+        days: savedRecord.days,
+      });
     }
 
-    res.status(200).json({ message: "Attendance taken successfully" });
+    res.status(200).json({
+      message: "Attendance taken successfully",
+      data: attendanceResults,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+
+
 
 exports.getStudentAttendance = async (req, res) => {
   try {

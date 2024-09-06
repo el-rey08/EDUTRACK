@@ -27,23 +27,23 @@ const attendanceSchema = new mongoose.Schema(
         required: true,
       },
       days: {
-        Monday: {
+        monday: {
           type: String,
           enum: ["present", "absent", "late"],
         },
-        Tuesday: {
+        tuesday: {
           type: String,
           enum: ["present", "absent", "late"],
         },
-        Wednesday: {
+        wednesday: {
           type: String,
           enum: ["present", "absent", "late"],
         },
-        Thursday: {
+        thursday: {
           type: String,
           enum: ["present", "absent", "late"],
         },
-        Friday: {
+        friday: {
           type: String,
           enum: ["present", "absent", "late"],
         },

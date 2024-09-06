@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const schoolModel = require("../models/schoolModel");
+const teacherModel = require('../models/teachearModel')
 require("dotenv").config();
 
 const authenticate = async (req, res, next) => {
@@ -25,13 +26,14 @@ const authenticate = async (req, res, next) => {
 
 const checkAdminOrTeacher = async (req, res, next) => {
   try {
-    const user = await schoolModel.findById(req.user.userId);
-    
-    if (user && (user.role === 'admin' || user.role === 'teacher')) {
-      // If the user is either an admin or a teacher, allow them to proceed
+    const adminUser = await schoolModel.findById(req.user.userId);
+    const teacherUser = await teacherModel.findById(req.user.userId);
+
+    if (adminUser && adminUser.role === 'admin') {
+      next();
+    } else if (teacherUser && teacherUser.role === 'teacher') {
       next();
     } else {
-      // If the user is neither an admin nor a teacher, deny access
       return res.status(403).json({
         status: "Forbidden",
         message: "Access denied. You are not authorized to perform this action",
@@ -41,6 +43,7 @@ const checkAdminOrTeacher = async (req, res, next) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
 
 
 
