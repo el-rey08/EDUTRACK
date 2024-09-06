@@ -20,6 +20,10 @@ const teacherSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    teacherClass: {
+        type: String,
+        required: true,
+      },
     address: {
         type: String,
         required: true

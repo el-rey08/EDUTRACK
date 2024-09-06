@@ -19,6 +19,7 @@ exports.signUp = async (req, res) => {
       address,
       email,
       gender,
+      teacherClass,
       maritalStatus,
     } = req.body;
     const schoolID = req.user.schoolID;
@@ -27,7 +28,8 @@ exports.signUp = async (req, res) => {
       !address ||
       !email ||
       !gender ||
-      !maritalStatus
+      !maritalStatus ||
+      !teacherClass
     ) {
       return res.status(400).json({
         status: "Bad request",
@@ -66,6 +68,7 @@ exports.signUp = async (req, res) => {
       teacherID,
       school: school._id,
       gender,
+      teacherClass,
       maritalStatus,
       teacherProfile: image.secure_url,
     });
