@@ -12,45 +12,43 @@ const attendanceSchema = new mongoose.Schema(
       ref: "School",
       required: true,
     },
-    students: [
-      {
-        student: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Student",
-          required: true,
-        },
-        attendanceRecords: [
-          {
-            week: {
-              type: Number,
-              required: true,
-            },
-            days: {
-              Monday: {
-                type: String,
-                enum: ["present", "absent", "late"],
-              },
-              Tuesday: {
-                type: String,
-                enum: ["present", "absent", "late"],
-              },
-              Wednesday: {
-                type: String,
-                enum: ["present", "absent", "late"],
-              },
-              Thursday: {
-                type: String,
-                enum: ["present", "absent", "late"],
-              },
-              Friday: {
-                type: String,
-                enum: ["present", "absent", "late"],
-              },
-            },
-          },
-        ],
+    student: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+      required: true,
+    },
+    studentName: {
+      type: String,
+      required: true,
+    },
+    attendanceRecords: [{
+      week: {
+        type: Number,
+        required: true,
       },
-    ],
+      days: {
+        Monday: {
+          type: String,
+          enum: ["present", "absent", "late"],
+        },
+        Tuesday: {
+          type: String,
+          enum: ["present", "absent", "late"],
+        },
+        Wednesday: {
+          type: String,
+          enum: ["present", "absent", "late"],
+        },
+        Thursday: {
+          type: String,
+          enum: ["present", "absent", "late"],
+        },
+        Friday: {
+          type: String,
+          enum: ["present", "absent", "late"],
+        },
+      },
+    }],
     date: {
       type: Date,
       required: true,
@@ -61,5 +59,4 @@ const attendanceSchema = new mongoose.Schema(
 );
 
 const attendanceModel = mongoose.model("Attendance", attendanceSchema);
-
 module.exports = attendanceModel;

@@ -10,80 +10,58 @@ exports.takeAttendance = async (req, res) => {
     if (!school) {
       return res.status(400).json({ message: "School not found" });
     }
-
     const schoolName = school.schoolName;
-
-    let attendance = await attendanceModel.findOne({
-      teacher: teacherID,
-      school: schoolID,
-      "students.attendanceRecords.week": week,
-    });
-
-    if (!attendance) {
-      attendance = new attendanceModel({
+    for (const record of studentAttendance) {
+      const student = await studentModel.findById(record.student);
+      if (!student) {
+        return res.status(400).json({ message: `Student not found: ${record.student}` });
+      }
+      let attendance = await attendanceModel.findOne({
         teacher: teacherID,
         school: schoolID,
-        students: studentAttendance.map((student) => ({
-          student: student.student,
+        student: record.student,
+        "attendanceRecords.week": week,
+      });
+
+      if (!attendance) {
+        attendance = new attendanceModel({
+          teacher: teacherID,
+          school: schoolID,
+          student: record.student,
+          studentName: student.fullName,
           attendanceRecords: [
             {
               week: week,
               days: {
-                [day]: student.status,
+                [day]: record.status,
               },
             },
           ],
-        })),
-      });
-    } else {
-      for (const record of studentAttendance) {
-        const studentRecord = attendance.students.find((s) =>
-          s.student.equals(record.student)
+        });
+      } else {
+        const weekRecord = attendance.attendanceRecords.find(
+          (w) => w.week === week
         );
-
-        if (studentRecord) {
-          const weekRecord = studentRecord.attendanceRecords.find(
-            (w) => w.week === week
-          );
-          if (weekRecord) {
-            weekRecord.days[day] = record.status;
-          } else {
-            studentRecord.attendanceRecords.push({
-              week: week,
-              days: {
-                [day]: record.status,
-              },
-            });
-          }
+        if (weekRecord) {
+          weekRecord.days[day] = record.status;
         } else {
-          attendance.students.push({
-            student: record.student,
-            attendanceRecords: [
-              {
-                week: week,
-                days: {
-                  [day]: record.status,
-                },
-              },
-            ],
+          attendance.attendanceRecords.push({
+            week: week,
+            days: {
+              [day]: record.status,
+            },
           });
         }
       }
-    }
-
-    await attendance.save();
-    for (const record of studentAttendance) {
+      await attendance.save();
       if (record.status === "absent" || record.status === "late") {
-        const student = await studentModel.findById(record.student);
-        if (student && student.email) {
+        if (student.parentEmail) {
           await sendAttendanceEmail(student, record.status, schoolName, day);
         }
       }
     }
 
-    res
-      .status(200)
-      .json({ message: "Attendance taken successfully", attendance });
+    res.status(200).json({ message: "Attendance taken successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
@@ -100,29 +78,21 @@ exports.getStudentAttendance = async (req, res) => {
       });
     }
     const attendanceRecords = await attendanceModel.find({
-      "students.student": studentID,
+      student: studentID,
     });
-
     if (!attendanceRecords || attendanceRecords.length === 0) {
       return res.status(400).json({
         status: "Bad Request",
         message: "Student Attendance Record not Found",
       });
     }
-
-    const studentAttendance = attendanceRecords.map((attendance) => {
-      const studentRecord = attendance.students.find((record) =>
-        record.student.equals(studentID)
-      );
-
-      return {
-        week: studentRecord.attendanceRecords.map((record) => ({
-          week: record.week,
-          days: record.days,
-        })),
-      };
-    });
-
+    const studentAttendance = attendanceRecords.map((attendance) => ({
+      studentName: attendance.studentName,
+      week: attendance.attendanceRecords.map((record) => ({
+        week: record.week,
+        days: record.days,
+      })),
+    }));
     res.status(200).json({
       status: "OK",
       message: "Student Attendance Retrieved Successfully",
@@ -135,6 +105,7 @@ exports.getStudentAttendance = async (req, res) => {
     });
   }
 };
+
 
 exports.getAllStudentAttendance = async (req, res) => {
   try {
@@ -149,15 +120,12 @@ exports.getAllStudentAttendance = async (req, res) => {
     const formattedAttendance = attendanceRecords.map((record) => ({
       teacher: record.teacher.fullName,
       date: record.date,
-      students: record.students.map((studentRecord) => ({
-        studentName: studentRecord.student.fullName,
-        attendanceRecords: studentRecord.attendanceRecords.map((att) => ({
-          week: att.week,
-          days: att.days,
-        })),
+      studentName: record.studentName,
+      attendanceRecords: record.attendanceRecords.map((att) => ({
+        week: att.week,
+        days: att.days,
       })),
     }));
-
     res.status(200).json({
       status: "OK",
       message: "School attendance records retrieved successfully",
