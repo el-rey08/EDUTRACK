@@ -59,7 +59,7 @@ exports.signUp = async (req, res) => {
     }
     const image = await cloudinary.uploader.upload(req.file.path);
     const data = new teacherModel({
-      fullName,
+      fullName:fullName.trim(),
       address,
       email: email.toLowerCase(),
       password: hashedPassword,
@@ -112,13 +112,25 @@ exports.signUp = async (req, res) => {
 exports.signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // Check if teacher exists
     const existingTeacher = await teacherModel.findOne({ email });
     if (!existingTeacher) {
-      return re.status(404).json({
+      return res.status(404).json({
         status: "Not found",
-        message: "teacher not found",
+        message: "Teacher not found",
       });
     }
+
+    // Check if teacher is verified before password validation
+    if (!existingTeacher.isVerified) {
+      return res.status(400).json({
+        status: "Bad request",
+        message: "Teacher is not verified. Please check your email for verification link.",
+      });
+    }
+
+    // Check if the password is the initial teacherID password
     if (password === existingTeacher.teacherID) {
       const userToken = jwt.sign(
         {
@@ -136,6 +148,8 @@ exports.signIn = async (req, res) => {
         userToken,
       });
     }
+
+    // Compare hashed password
     const checkPassword = await bcrypt.compare(
       password.toString(),
       existingTeacher.password
@@ -143,17 +157,11 @@ exports.signIn = async (req, res) => {
     if (!checkPassword) {
       return res.status(400).json({
         status: "Bad Request",
-        message: "incorrect password please check your password",
+        message: "Incorrect password. Please check your password.",
       });
     }
 
-    if (!existingTeacher.isVerified) {
-      return res.status(400).json({
-        status: "Bad request",
-        message:
-          "Teacher is  not verified please check your email for verification link",
-      });
-    }
+    // Generate a token if the login is successful
     const userToken = jwt.sign(
       {
         userId: existingTeacher._id,
@@ -164,18 +172,20 @@ exports.signIn = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
-    res.status(200).json({
+
+    return res.status(200).json({
       message: `${existingTeacher.fullName} is logged in`,
       data: existingTeacher,
       userToken,
     });
   } catch (error) {
-    res.status(500).json({
-      status: "server error",
+    return res.status(500).json({
+      status: "Server error",
       message: error.message,
     });
   }
 };
+
 
 exports.verifyEmail = async (req, res) => {
   try {
@@ -194,6 +204,7 @@ exports.verifyEmail = async (req, res) => {
         message: "Teacher Already verified",
       });
     }
+    teacher.isVerified = true
     await teacher.save();
     res.status(200).json({
       status: "ok",

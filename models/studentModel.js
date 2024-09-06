@@ -12,13 +12,8 @@ const studentSchema = new mongoose.Schema({
  
  email:{
    type:String,
-   unique:true,
    trim:true
    },
- password:{
-   type:String,
-   require:true
- },
  address:{
     type:String,
     require:true
@@ -30,6 +25,7 @@ const studentSchema = new mongoose.Schema({
  },
  studentID:{
     type:Number,
+    required:true,
     unique:true
  },
  class: {

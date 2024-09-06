@@ -12,21 +12,23 @@ exports.signUp = async (req, res) => {
   const generateID = function () {
     return Math.floor(Math.random() * 10000);
   };
-  try {
-    const {
-      fullName,
-      email,
-      address,
-      gender,
-      class: studentClass,
-    } = req.body;
-    const schoolID = req.user.schoolID 
 
+  try {
+    const { 
+      fullName, 
+      email, 
+      address, 
+      gender, 
+      class: studentClass 
+
+    } = req.body;
+    const studentID = generateID();
+    const schoolID = req.user.schoolID; 
     if (
-      !fullName ||
-      !email ||
-      !address ||
-      !gender ||
+      !fullName || 
+      !email || 
+      !address || 
+      !gender || 
       !studentClass
     ) {
       return res.status(400).json({
@@ -34,63 +36,69 @@ exports.signUp = async (req, res) => {
         message: "Please, all fields are required",
       });
     }
-    const existingUser = await studentModel.findOne({ email });
+    const existingUser = await studentModel.findOne({ studentID });
     if (existingUser) {
       return res.status(400).json({
         status: "Bad request",
-        message: "This Student already exists",
+        message: "Student With This ID Already Exist",
       });
     }
-    const school = await schoolModel.findOne({schoolID})
+
+    const school = await schoolModel.findOne({ schoolID });
     if (!school) {
       return res.status(400).json({
-        status:"Bad request",
-        message:`No school with id ${schoolID}`
-      })
+        status: "Bad request",
+        message: `No school with id ${schoolID}`,
+      });
     }
-    const studentID = generateID();
     const saltedPassword = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(studentID.toString(), saltedPassword);
-    const file = req.file
-    if(!file){
+
+    const file = req.file;
+    if (!file) {
       return res.status(400).json({
-        message:'student picture is required'
-      })
-    };
-    const image = await cloudinary.uploader.upload(req.file.path)
+        message: "Student picture is required",
+      });
+    }
+    const image = await cloudinary.uploader.upload(req.file.path);
     const data = new studentModel({
-      fullName:fullName.toLowerCase().trim,
+      fullName: fullName.trim(),
       email: email.toLowerCase().trim(),
-      password: hashedPassword,
       address,
       gender,
       studentID,
-      school:school._id,
+      password:hashedPassword,
+      school: school._id,
       class: studentClass,
-      studentProfile:image.secure_url
+      studentProfile: image.secure_url,
     });
+
     fs.unlink(file.path, (err) => {
       if (err) {
-        console.error('Error deleting the file from local storage:', err);
+        console.error("Error deleting the file from local storage:", err);
       } else {
-        console.log('File deleted from local storage');
+        console.log("File deleted from local storage");
       }
     });
+
     const userToken = jwt.sign(
       { id: data.studentID, email: data.email },
       process.env.JWT_SECRET,
       { expiresIn: "30 mins" }
     );
-    const verifyLink =`https://edutrack-v1cr.onrender.com/api/v1/student/verify/${userToken}`;
-    const template = signUpTemplate(verifyLink, `${data.fullName}`, `${data.studentID}`)
+
+    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/student/verify/${userToken}`;
+    const template = signUpTemplate(verifyLink, `${data.fullName}`, `${data.studentID}`);
+
     let mailOptions = {
       email: data.email,
       subject: "Email Verification",
-      html: template
+      html: template,
     };
-    await data.save()
-    school.students.push(data._id)
-    await school.save()
+
+    await data.save();
+    school.students.push(data._id);
+    await school.save();
     await sendMail(mailOptions);
 
     res.status(201).json({
@@ -106,50 +114,42 @@ exports.signUp = async (req, res) => {
   }
 };
 
-exports.signIn = async (req, res) => {
+
+exports.signIn= async (req, res) => {
   try {
     const { email, studentID } = req.body;
-    const existingUser = await studentModel.findOne({ email });
+    const existingStudent = await studentModel.findOne({ email, studentID });
 
-    if (!existingUser) {
+    if (!existingStudent) {
       return res.status(404).json({
         status: "Not Found",
-        message: "No student with the provided email. Please check with the admin.",
+        message: "No student found with this email and studentID.",
       });
     }
-    const checkPassword = await bcrypt.compare(studentID.toString(), existingUser.password);
-
-    if (!checkPassword) {
+    if (!existingStudent.isVerified) {
       return res.status(400).json({
         status: "Bad request",
-        message: "Incorrect studentID. Please check and try again.",
+        message: "Student is not verified. Please check your email.",
       });
     }
-
-    if (!existingUser.isVerified) {
-      return res.status(400).json({
-        status: "Bad request",
-        message: "Student not verified. Please check your email for the verification link.",
-      });
-    }
-
     const userToken = jwt.sign(
       {
-        userId: existingUser._id,
-        email: existingUser.email,
-        name: existingUser.fullName,
-        role: 'student', 
+        userId: existingStudent._id,
+        email: existingStudent.email,
+        name: existingStudent.fullName,
+        role: 'student',
       },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
-    res.status(200).json({
-      message: `${existingUser.fullName} is logged in`,
-      data: existingUser,
+
+    return res.status(200).json({
+      message: `${existingStudent.fullName} is logged in`,
+      data: existingStudent,
       userToken,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       status: "Server error",
       message: error.message,
     });

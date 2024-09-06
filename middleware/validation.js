@@ -45,51 +45,38 @@ exports.singUpVlidator = async (req, res, next) => {
   
 
 
-exports.logInValidator= async (req, res, next) => {
-  const { email, password } = req.body;
+exports.logInValidator = async (req, res, next) => {
+  const { email, studentID } = req.body;
+
   try {
-    const student = await studentModel.findOne({ email });
-    if (!student) {
-      return res.status(404).json({
-        status: "Not found",
-        message: "Teacher not found",
+    // Validate email
+    const emailSchema = joiValidation.object({
+      email: joiValidation.string().email().required().messages({
+        "any.required": "Please provide your email address",
+        "string.empty": "Email cannot be empty",
+        "string.email": "Invalid email format. Please enter a valid email address",
+      }),
+    });
+
+    const { error: emailError } = emailSchema.validate({ email });
+    if (emailError) {
+      return res.status(400).json({
+        message: emailError.details[0].message,
       });
     }
-    if (password === student.studentID.toString()) {
-      return next();
-    }
-    const Schema = joiValidation.object({
-      email: joiValidation.string().email().min(7).required().messages({
-        "any.required": "please provide your email address",
-        "string.empty": "email cannot be empty",
-        "string.email": "invalid email format. please enter a valid email address",
-      }),
-      password: joiValidation
-        .string()
-        .required()
-        .min(8)
-        .max(50)
-        .regex(
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,50}$/
-        )
-        .messages({
-          "string.pattern.base": "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
-          "string.empty": "Password cannot be empty",
-        }),
-    });
-    const { error } = Schema.validate(req.body);
-    if (error) {
+    if (!studentID) {
       return res.status(400).json({
-        message: error.details[0].message,
+        message: "Please enter your studentID",
       });
     }
 
     next();
   } catch (error) {
     res.status(500).json({
-      status: "server error",
+      status: "Server error",
       message: error.message,
     });
   }
 };
+
 
