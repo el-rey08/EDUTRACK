@@ -65,7 +65,7 @@ exports.takeAttendance = async (req, res) => {
 
       // Notify parents if the student is absent or late
       if (record.status === "absent" || record.status === "late") {
-        if (student.parentEmail) {
+        if (student.email) {
           await sendAttendanceEmail(student, record.status, schoolName, day);
         }
       }
