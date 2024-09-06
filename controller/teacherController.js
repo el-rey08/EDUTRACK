@@ -149,11 +149,8 @@ exports.signIn = async (req, res) => {
       });
     }
 
-    // Compare hashed password
-    const checkPassword = await bcrypt.compare(
-      password.toString(),
-      existingTeacher.password
-    );
+    // Compare hashed password for regular login
+    const checkPassword = await bcrypt.compare(password, existingTeacher.password);
     if (!checkPassword) {
       return res.status(400).json({
         status: "Bad Request",

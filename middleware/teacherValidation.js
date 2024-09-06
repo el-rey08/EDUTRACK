@@ -34,8 +34,9 @@ exports.singUpVlidator = async (req, res, next) => {
   
 
 
-exports.logInValidator= async (req, res, next) => {
+exports.logInValidator = async (req, res, next) => {
   const { email, password } = req.body;
+
   try {
     const existingTeacher = await teacherModel.findOne({ email });
     if (!existingTeacher) {
@@ -44,9 +45,13 @@ exports.logInValidator= async (req, res, next) => {
         message: "Teacher not found",
       });
     }
+
+    // Allow login with teacherID as the password
     if (password === existingTeacher.teacherID.toString()) {
       return next();
     }
+
+    // If the password is not teacherID, apply the full Joi validation
     const Schema = joiValidation.object({
       email: joiValidation.string().email().min(7).required().messages({
         "any.required": "please provide your email address",
@@ -62,11 +67,12 @@ exports.logInValidator= async (req, res, next) => {
           /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,50}$/
         )
         .messages({
-          "any.required":"please enter password",
+          "any.required": "please enter password",
           "string.pattern.base": "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
           "string.empty": "Password cannot be empty",
         }),
     });
+
     const { error } = Schema.validate(req.body);
     if (error) {
       return res.status(400).json({
