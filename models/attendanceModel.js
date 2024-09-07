@@ -27,25 +27,11 @@ const attendanceSchema = new mongoose.Schema(
         required: true,
       },
       days: {
-        monday: {
+        type: Map,
+        of: {
           type: String,
           enum: ["present", "absent", "late"],
-        },
-        tuesday: {
-          type: String,
-          enum: ["present", "absent", "late"],
-        },
-        wednesday: {
-          type: String,
-          enum: ["present", "absent", "late"],
-        },
-        thursday: {
-          type: String,
-          enum: ["present", "absent", "late"],
-        },
-        friday: {
-          type: String,
-          enum: ["present", "absent", "late"],
+          default: "absent"
         },
       },
     }],
