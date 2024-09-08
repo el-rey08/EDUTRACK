@@ -10,9 +10,11 @@ exports.takeAttendance = async (req, res) => {
     const { studentID } = req.params;
     const teacherID = req.user.userId;
     const teacher = await teacherModel.findById(teacherID).populate("school");
+
     if (!teacher) {
       return res.status(400).json({ message: "Teacher not found" });
     }
+
     const schoolID = teacher.school._id;
     const schoolName = teacher.school.schoolName;
     const currentDate = new Date();
@@ -27,6 +29,12 @@ exports.takeAttendance = async (req, res) => {
       "saturday",
     ];
     const day = dayNames[currentDate.getDay()];
+    if (day === "saturday" || day === "sunday") {
+      return res.status(400).json({
+        message: "Attendance cannot be taken today (Saturday or Sunday)",
+      });
+    }
+
     const student = await studentModel.findById(studentID);
     if (!student) {
       return res
@@ -40,7 +48,27 @@ exports.takeAttendance = async (req, res) => {
       "attendanceRecords.week": week,
     });
 
-    if (!attendance) {
+    if (attendance) {
+      const weekRecord = attendance.attendanceRecords.find(
+        (w) => w.week === week
+      );
+
+      if (weekRecord && weekRecord.days[day]) {
+        return res.status(400).json({
+          message: `Attendance has already been taken for ${day}`,
+        });
+      }
+      if (weekRecord) {
+        weekRecord.days[day] = status;
+      } else {
+        attendance.attendanceRecords.push({
+          week: week,
+          days: {
+            [day]: status,
+          },
+        });
+      }
+    } else {
       attendance = new attendanceModel({
         teacher: teacherID,
         school: schoolID,
@@ -55,21 +83,6 @@ exports.takeAttendance = async (req, res) => {
           },
         ],
       });
-    } else {
-      const weekRecord = attendance.attendanceRecords.find(
-        (w) => w.week === week
-      );
-
-      if (weekRecord) {
-        weekRecord.days[day] = status;
-      } else {
-        attendance.attendanceRecords.push({
-          week: week,
-          days: {
-            [day]: status,
-          },
-        });
-      }
     }
     await attendance.save();
     if (status === "absent" || status === "late") {
