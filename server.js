@@ -14,6 +14,11 @@ app.use('/api/v1/teacher', teacherRouter)
 app.use('/api/v1/school',schoolRouter )
 app.use('/api/v1/attendance',attendanceRouter)
 const port = process.env.port || 7095
+
+app.get('/', (req, res) => {
+    res.send('Welcome to Edutrack');
+});
+
 app.listen(port,()=>{
     console.log(`app is running on port: ${port}`);
 })
