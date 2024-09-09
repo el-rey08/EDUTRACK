@@ -10,5 +10,5 @@ router.get('/verify/:userToken', verifyEmail)
 router.get('/resend-link',authenticate,checkAdminOrTeacher, resendVerificationEmail)
 router.put('/update-profile/:teacherID',upload.single('teacherProfile'), updateProfile)
 router.post('/forget-password', forgetPassword)
-router.post('/reset-password', resetPassword)
+router.post('/reset-password',authenticate,resetPassword)
 module.exports = router
