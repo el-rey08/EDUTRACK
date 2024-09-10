@@ -2,7 +2,7 @@ const studentModel = require("../models/studentModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const {sendMail} = require("../helpers/email");
-const { signUpTemplate, verifyTemplate } = require("../helpers/template");
+const { studentSignUpTemplate, verifyTemplate } = require("../helpers/template");
 const schoolModel = require("../models/schoolModel");
 const cloudinary = require('../utils/cloudinary')
 const attendanceModel = require('../models/attendanceModel')
@@ -88,7 +88,7 @@ exports.signUp = async (req, res) => {
     );
 
     const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/student/verify/${userToken}`;
-    const template = signUpTemplate(verifyLink, `${data.fullName}`, `${data.studentID}`);
+    const template = studentSignUpTemplate(verifyLink, `${data.fullName}`, `${data.studentID}`);
 
     let mailOptions = {
       email: data.email,
@@ -288,7 +288,7 @@ exports.updateProfile = async (req, res) => {
 
 exports.getStudentAttendance = async (req, res) => {
   try {
-    const { studentID } = req.params;
+    const { studentID } = req.user;
     const student = await studentModel.findById(studentID);
     if (!student) {
       return res.status(400).json({ message: `Student not found: ${studentID}` });
