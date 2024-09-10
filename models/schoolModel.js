@@ -42,7 +42,7 @@ const schoolSchema = new mongoose.Schema({
     schoolPicture:{
         type:String,
     }
-}, { timestamps: true });
+});
 
 const schoolModel = mongoose.model('school', schoolSchema);
 module.exports = schoolModel;

@@ -93,12 +93,12 @@ exports.signUp = async (req, res) => {
 exports.signIn = async (req, res) => {
   try {
     const { schoolEmail, schoolPassword } = req.body;
-    const existingSchool = await schoolModel.findOne({ schoolEmail });
+    const existingSchool = await schoolModel.findOne({ schoolEmail:schoolEmail.toLowerCase() });
     if (!existingSchool) {
       return res.status(404).json({
         status: "Not Found",
         message:
-          "No Student with the Above information kindly see the admin for registration",
+          "No School found",
       });
     }
 

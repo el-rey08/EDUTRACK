@@ -2,33 +2,46 @@ const attendanceModel = require("../models/attendanceModel");
 const { sendAttendanceEmail } = require("../helpers/email");
 const studentModel = require("../models/studentModel");
 const teacherModel = require("../models/teachearModel");
-// const schoolModel = require("../models/schoolModel");
+const schoolModel = require("../models/schoolModel");
 
 exports.takeAttendance = async (req, res) => {
   try {
     const { status } = req.body;
     const { studentID } = req.params;
-    const teacherID = req.user.userId;
-    const teacher = await teacherModel.findById(teacherID).populate("school");
-
-    if (!teacher) {
-      return res.status(400).json({ message: "Teacher not found" });
+    const userID = req.user.userId;
+    const userRole = req.user.role; 
+    let schoolID;
+    let schoolName;
+    
+    if (userRole === 'teacher') {
+      const teacher = await teacherModel.findById(userID);
+      if (!teacher) {
+        return res.status(400).json({ message: "Teacher not found" });
+      }
+      schoolID = teacher.school._id;
+      schoolName = teacher.school.schoolName;
+    } else if (userRole === 'admin') {
+      const School = await schoolModel.findById(userID);
+      if (!School) {
+        return res.status(400).json({ message: "Admin not found" });
+      }
+      schoolID = School.school._id;
+      schoolName = School.schoolName;
+    } else {
+      return res.status(403).json({ message: "Unauthorized user" });
     }
-
-    const schoolID = teacher.school._id;
-    const schoolName = teacher.school.schoolName;
     const currentDate = new Date();
     const week = getWeekNumber(currentDate);
     const dayNames = [
-      "sunday",
-      "monday",
-      "tuesday",
-      "wednesday",
-      "thursday",
-      "friday",
-      "saturday",
-    ];
+      "sunday", 
+      "monday", 
+      "tuesday", 
+      "wednesday", 
+      "thursday", 
+      "friday", 
+      "saturday"];
     const day = dayNames[currentDate.getDay()];
+  
     if (day === "saturday" || day === "sunday") {
       return res.status(400).json({
         message: "Attendance cannot be taken today (Saturday or Sunday)",
@@ -37,23 +50,18 @@ exports.takeAttendance = async (req, res) => {
 
     const student = await studentModel.findById(studentID);
     if (!student) {
-      return res
-        .status(400)
-        .json({ message: `Student not found: ${studentID}` });
+      return res.status(400).json({ message: `Student not found: ${studentID}` });
     }
+
     let attendance = await attendanceModel.findOne({
-      teacher: teacherID,
       school: schoolID,
       student: studentID,
       "attendanceRecords.week": week,
     });
 
     if (attendance) {
-      const weekRecord = attendance.attendanceRecords.find(
-        (w) => w.week === week
-      );
-
-      if (weekRecord && weekRecord.days[day]) {
+      const weekRecord = attendance.attendanceRecords.find((w) => w.week === week);
+      if (weekRecord && weekRecord.days && weekRecord.days[day]) {
         return res.status(400).json({
           message: `Attendance has already been taken for ${day}`,
         });
@@ -70,7 +78,6 @@ exports.takeAttendance = async (req, res) => {
       }
     } else {
       attendance = new attendanceModel({
-        teacher: teacherID,
         school: schoolID,
         student: studentID,
         studentName: student.fullName,
@@ -84,11 +91,11 @@ exports.takeAttendance = async (req, res) => {
         ],
       });
     }
+
     await attendance.save();
-    if (status === "absent" || status === "late") {
-      if (student.email) {
-        await sendAttendanceEmail(student, status, schoolName, day);
-      }
+
+    if (status === "absent" && student.email) {
+      await sendAttendanceEmail(student, status, schoolName, day);
     }
 
     res.status(200).json({

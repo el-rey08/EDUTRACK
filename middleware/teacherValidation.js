@@ -1,5 +1,7 @@
-const joiValidation = require('@hapi/joi')
+const joiValidation = require('@hapi/joi');
 const teacherModel = require('../models/teachearModel')
+
+// Sign-up Validation
 exports.singUpVlidator = async (req, res, next) => {
   const Schema = joiValidation.object({
     fullName: joiValidation.string().required().min(3).trim().regex(/^[A-Za-z]+(?:[-' ]?[A-Za-z]+)*$/).messages({
@@ -8,11 +10,10 @@ exports.singUpVlidator = async (req, res, next) => {
       "string.min": "The minimum name must be at least 3 characters long",
       "string.pattern.base": "Full name should only contain letters, spaces, hyphens, or apostrophes",
     }),
-    
-    email: joiValidation.string().email().min(7).required().messages({
-      "any.required": "please provide your email address",
-      "string.empty": "email cannot be empty",
-      "string.email": "invalid email format. please enter a valid email address",
+    email: joiValidation.string().email().lowercase().min(7).required().messages({
+      "any.required": "Please provide your email address",
+      "string.empty": "Email cannot be empty",
+      "string.email": "Invalid email format. Please enter a valid email address",
     }),
     address: joiValidation.string().required(),
     gender: joiValidation.string().required().valid("male", "female"),
@@ -20,6 +21,13 @@ exports.singUpVlidator = async (req, res, next) => {
       'string.pattern.base': 'Marital status must be either "married", "single", or "divorced".',
       'any.required': 'Marital status is required.',
     }),
+    teacherClass: joiValidation.string()
+      .required()
+      .pattern(/^(Primary [1-6]|JSS [1-3]|SS [1-3])$/)
+      .messages({
+        'string.pattern.base': 'Class must be one of the following: JSS 1-3, or SS 1-3.',
+        'any.required': 'Class is required.'
+      }),
   });
 
   const { error } = Schema.validate(req.body);
@@ -31,15 +39,14 @@ exports.singUpVlidator = async (req, res, next) => {
   next();
 };
 
-  
-
-
+// Login Validation
 exports.logInValidator = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
-    const existingTeacher = await teacherModel.findOne({ email });
-    if (!existingTeacher) {
+    const teacher = await teacherModel.findOne({ email: email.toLowerCase() });  // Ensure email is lowercase for comparison
+
+    if (!teacher) {
       return res.status(404).json({
         status: "Not found",
         message: "Teacher not found",
@@ -47,29 +54,27 @@ exports.logInValidator = async (req, res, next) => {
     }
 
     // Allow login with teacherID as the password
-    if (password === existingTeacher.teacherID.toString()) {
+    if (password === teacher.teacherID.toString()) {
       return next();
     }
 
-    // If the password is not teacherID, apply the full Joi validation
+    // Simplified password validation at login
     const Schema = joiValidation.object({
-      email: joiValidation.string().email().min(7).required().messages({
-        "any.required": "please provide your email address",
-        "string.empty": "email cannot be empty",
-        "string.email": "invalid email format. please enter a valid email address",
+      email: joiValidation.string().email().lowercase().min(7).required().messages({
+        "any.required": "Please provide your email address",
+        "string.empty": "Email cannot be empty",
+        "string.email": "Invalid email format. Please enter a valid email address",
       }),
       password: joiValidation
         .string()
         .required()
         .min(4)
         .max(50)
-        .regex(
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z0-9!@#$%^&*(),.?":{}|<>]{8,50}$/
-        )
         .messages({
-          "any.required": "please enter password",
-          "string.pattern.base": "Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",
+          "any.required": "Please enter password",
           "string.empty": "Password cannot be empty",
+          "string.min": "Password must be at least 4 characters long",
+          "string.max": "Password cannot be longer than 50 characters",
         }),
     });
 
@@ -83,7 +88,7 @@ exports.logInValidator = async (req, res, next) => {
     next();
   } catch (error) {
     res.status(500).json({
-      status: "server error",
+      status: "Server error",
       message: error.message,
     });
   }

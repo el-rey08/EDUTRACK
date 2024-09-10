@@ -51,7 +51,7 @@ exports.logInValidator = async (req, res, next) => {
   try {
     // Validate email
     const emailSchema = joiValidation.object({
-      email: joiValidation.string().email().required().messages({
+      email: joiValidation.string().email().lowercase().required().messages({
         "any.required": "Please provide your email address",
         "string.empty": "Email cannot be empty",
         "string.email": "Invalid email format. Please enter a valid email address",

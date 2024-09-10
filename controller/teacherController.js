@@ -117,7 +117,7 @@ exports.signIn = async (req, res) => {
     const { email, password } = req.body;
 
     // Check if teacher exists
-    const existingTeacher = await teacherModel.findOne({ email });
+    const existingTeacher = await teacherModel.findOne({ email:email.toLowerCase() });
     if (!existingTeacher) {
       return res.status(404).json({
         status: "Not found",

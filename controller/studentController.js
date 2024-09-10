@@ -5,6 +5,7 @@ const {sendMail} = require("../helpers/email");
 const { signUpTemplate, verifyTemplate } = require("../helpers/template");
 const schoolModel = require("../models/schoolModel");
 const cloudinary = require('../utils/cloudinary')
+const attendanceModel = require('../models/attendanceModel')
 const fs = require('fs')
 const date = new Date();
 
@@ -66,8 +67,7 @@ exports.signUp = async (req, res) => {
       email: email.toLowerCase().trim(),
       address,
       gender,
-      studentID,
-      password:hashedPassword,
+      studentID:hashedPassword,
       school: school._id,
       class: studentClass,
       studentProfile: image.secure_url,
@@ -115,10 +115,13 @@ exports.signUp = async (req, res) => {
 };
 
 
-exports.signIn= async (req, res) => {
+exports.signIn = async (req, res) => {
   try {
     const { email, studentID } = req.body;
-    const existingStudent = await studentModel.findOne({ email, studentID });
+    const existingStudent = await studentModel.findOne({ 
+      email: email.toLowerCase(), 
+      studentID 
+    });
 
     if (!existingStudent) {
       return res.status(404).json({
@@ -126,12 +129,14 @@ exports.signIn= async (req, res) => {
         message: "No student found with this email and studentID.",
       });
     }
+
     if (!existingStudent.isVerified) {
       return res.status(400).json({
         status: "Bad request",
         message: "Student is not verified. Please check your email.",
       });
     }
+
     const userToken = jwt.sign(
       {
         userId: existingStudent._id,
@@ -155,6 +160,7 @@ exports.signIn= async (req, res) => {
     });
   }
 };
+;
 
 
 
@@ -277,5 +283,35 @@ exports.updateProfile = async (req, res) => {
       status: 'Server Error',
       message: error.message,
     });
+  }
+};
+
+exports.getStudentAttendance = async (req, res) => {
+  try {
+    const { studentID } = req.params;
+    const student = await studentModel.findById(studentID);
+    if (!student) {
+      return res.status(400).json({ message: `Student not found: ${studentID}` });
+    }
+    const attendance = await attendanceModel.find({ student: studentID });
+
+    if (!attendance || attendance.length === 0) {
+      return res.status(404).json({ message: "No attendance records found for this student" });
+    }
+    const attendanceRecords = attendance.map((record) => ({
+      week: record.attendanceRecords.map(weekRecord => ({
+        week: weekRecord.week,
+        days: weekRecord.days,
+      })),
+    }));
+    res.status(200).json({
+      message: "Attendance records retrieved successfully",
+      data: {
+        studentName: student.fullName,
+        attendanceRecords,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };

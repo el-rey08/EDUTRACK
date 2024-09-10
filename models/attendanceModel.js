@@ -27,11 +27,40 @@ const attendanceSchema = new mongoose.Schema(
         required: true,
       },
       days: {
-        type: Map,
-        of: {
+        sunday: {
           type: String,
-          enum: ["present", "absent", "late"],
-          default: "absent"
+          enum: ["present", "absent"],
+
+        },
+        monday: {
+          type: String,
+          enum: ["present", "absent"],
+
+        },
+        tuesday: {
+          type: String,
+          enum: ["present", "absent"],
+
+        },
+        wednesday: {
+          type: String,
+          enum: ["present", "absent"],
+
+        },
+        thursday: {
+          type: String,
+          enum: ["present", "absent"],
+
+        },
+        friday: {
+          type: String,
+          enum: ["present", "absent"],
+
+        },
+        saturday: {
+          type: String,
+          enum: ["present", "absent"],
+
         },
       },
     }],
@@ -41,7 +70,6 @@ const attendanceSchema = new mongoose.Schema(
       default: Date.now,
     },
   },
-  { timestamps: true }
 );
 
 const attendanceModel = mongoose.model("Attendance", attendanceSchema);
