@@ -19,12 +19,14 @@ exports.signUp = async (req, res) => {
       schoolAddress,
       schoolEmail,
       schoolPassword,
+      schoolPicture
     } = req.body;
     if (
       !schoolName ||
       !schoolAddress ||
       !schoolEmail ||
-      !schoolPassword
+      !schoolPassword ||
+      !schoolPicture
     ) {
       return res.status(400).json({
         status: "Bad Request",
