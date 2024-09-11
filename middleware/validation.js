@@ -29,6 +29,7 @@ exports.singUpVlidator = async (req, res, next) => {
       'string.pattern.name': 'Class must be one of the following: JSS 1-3, or SS 1-3.',
       'any.required': 'Class is required.'
     }),
+    studentProfile:joiValidation.string(),
       address:joiValidation.string().required(),
         gender:joiValidation.string().required().valid("male","female"),
         

@@ -28,6 +28,7 @@ exports.singUpVlidator = async (req, res, next) => {
         'string.pattern.base': 'Class must be one of the following: JSS 1-3, or SS 1-3.',
         'any.required': 'Class is required.'
       }),
+      teacherProfile: joiValidation.string()
   });
 
   const { error } = Schema.validate(req.body);
