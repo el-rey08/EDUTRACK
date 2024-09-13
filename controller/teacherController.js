@@ -21,7 +21,6 @@ exports.signUp = async (req, res) => {
       gender,
       teacherClass,
       maritalStatus,
-      teacherProfile
     } = req.body;
     const schoolID = req.user.schoolID;
     if (
@@ -30,8 +29,7 @@ exports.signUp = async (req, res) => {
       !email ||
       !gender ||
       !maritalStatus ||
-      !teacherClass ||
-      !teacherProfile
+      !teacherClass
     ) {
       return res.status(400).json({
         status: "Bad request",

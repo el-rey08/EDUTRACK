@@ -21,7 +21,6 @@ exports.signUp = async (req, res) => {
       address, 
       gender, 
       class: studentClass,
-      studentProfile
 
     } = req.body;
     const studentID = generateID();
@@ -31,8 +30,7 @@ exports.signUp = async (req, res) => {
       !email || 
       !address || 
       !gender || 
-      !studentClass ||
-      !studentProfile
+      !studentClass
     ) {
       return res.status(400).json({
         status: "Bad request",
