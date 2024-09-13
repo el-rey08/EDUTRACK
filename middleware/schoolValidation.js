@@ -46,8 +46,8 @@ exports.signUpValidation = async (req, res, next) => {
         "string.min": "Password must be at least 8 characters long",
         "string.max": "Password cannot be longer than 50 characters",
       }),
-      // schoolPicture: joiValidation
-      // .string()
+      schoolPicture: joiValidation
+      .string()
   });
 
   const { error } = Schema.validate(req.body);
