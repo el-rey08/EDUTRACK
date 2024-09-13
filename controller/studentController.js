@@ -89,7 +89,7 @@ exports.signUp = async (req, res) => {
       { expiresIn: "30 mins" }
     );
 
-    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/student/verify/${userToken}`;
+    const verifyLink = `https://edutrack-jlln.onrender.com/api/v1/student/verify/${userToken}`;
     const template = studentSignUpTemplate(verifyLink, `${data.fullName}`, `${data.studentID}`);
 
     let mailOptions = {
@@ -217,7 +217,7 @@ exports.resendVerificationEmail = async (req, res) => {
     const userToken = jwt.sign({ email: student.email }, process.env.JWT_SECRET, {
       expiresIn: "20mins",
     });
-    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/student/verify/${userToken}`;
+    const verifyLink = `https://edutrack-jlln.onrender.com/api/v1/student/verify/${userToken}`;
     let mailOptions = {
       email: student.email,
       subject: "Verification email",

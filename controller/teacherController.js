@@ -89,7 +89,7 @@ exports.signUp = async (req, res) => {
       { expiresIn: "30min" }
     );
 
-    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/teacher/verify/${userToken}`;
+    const verifyLink = `https://edutrack-jlln.onrender.com/api/v1/teacher/verify/${userToken}`;
 
     let mailOptions = {
       email: data.email,
@@ -244,7 +244,7 @@ exports.resendVerificationEmail = async (req, res) => {
         expiresIn: "20mins",
       }
     );
-    const verifyLink = `https://edutrack-v1cr.onrender.com/api/v1/teacher/verify/${userToken}`;
+    const verifyLink = `https://edutrack-jlln.onrender.com/api/v1/teacher/verify/${userToken}`;
     let mailOptions = {
       email: teacher.email,
       subject: "Verification email",
@@ -280,7 +280,7 @@ exports.forgetPassword = async (req, res) => {
     let mailOptions = {
       email: teacher.email,
       subject: "password reset",
-      html: `please click the link to reset your password: <a href="https://edutrack-v1cr.onrender.com/api/v1/teacher/forget-passwordy/${resetToken}>Reset password</a>link expiers in 30min"`,
+      html: `please click the link to reset your password: <a href="https://edutrack-jlln.onrender.com/api/v1/teacher/forget-passwordy/${resetToken}>Reset password</a>link expiers in 30min"`,
     };
     await sendMail(mailOptions);
     res.status(200).json({
