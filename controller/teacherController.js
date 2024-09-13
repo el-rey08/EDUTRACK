@@ -36,7 +36,7 @@ exports.signUp = async (req, res) => {
         message: "Please, all fields are required",
       });
     }
-    const existingTeacher = await teacherModel.findOne({ email });
+    const existingTeacher = await teacherModel.findOne({ email: email.toLowerCase() });
     if (existingTeacher) {
       return res.status(400).json({
         status: "Bad request",
