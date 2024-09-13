@@ -94,6 +94,8 @@ exports.signIn = async (req, res) => {
   try {
     const { schoolEmail, schoolPassword } = req.body;
     const existingSchool = await schoolModel.findOne({ schoolEmail:schoolEmail.toLowerCase() });
+    console.log(schoolEmail)
+    console.log(existingSchool)
     if (!existingSchool) {
       return res.status(404).json({
         status: "Not Found",
