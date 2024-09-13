@@ -52,8 +52,8 @@ exports.signUp = async (req, res) => {
         message: `No school with id ${schoolID}`,
       });
     }
-    const saltedPassword = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(studentID.toString(), saltedPassword);
+    // const saltedPassword = await bcrypt.genSalt(10);
+    // const hashedPassword = await bcrypt.hash(studentID.toString(), saltedPassword);
 
     const file = req.file;
     if (!file) {
@@ -67,7 +67,7 @@ exports.signUp = async (req, res) => {
       email: email.toLowerCase().trim(),
       address,
       gender,
-      studentID:hashedPassword,
+      studentID,
       school: school._id,
       class: studentClass,
       studentProfile: image.secure_url,
