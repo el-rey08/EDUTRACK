@@ -78,6 +78,7 @@ exports.takeAttendance = async (req, res) => {
       }
     } else {
       attendance = new attendanceModel({
+        teacher: userID,
         school: schoolID,
         student: studentID,
         studentName: student.fullName,
