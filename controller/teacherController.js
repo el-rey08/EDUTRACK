@@ -2,7 +2,7 @@ const teacherModel = require("../models/teachearModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { sendMail } = require("../helpers/email");
-const { signUpTemplate, verifyTemplate } = require("../helpers/template");
+const { teacherSignUpTemplate, verifyTemplate } = require("../helpers/template");
 const schoolModel = require("../models/schoolModel");
 const cloudinary = require("../utils/cloudinary");
 const fs = require("fs");
@@ -92,7 +92,7 @@ exports.signUp = async (req, res) => {
     let mailOptions = {
       email: data.email,
       subject: "Email Verification",
-      html: signUpTemplate(verifyLink, `${data.fullName}`, `${data.teacherID}`),
+      html: teacherSignUpTemplate(verifyLink, `${data.fullName}`, `${data.teacherID}`),
     };
     await data.save();
     school.teachers.push(data._id);
