@@ -45,7 +45,8 @@ const studentSchema = new mongoose.Schema({
   ref:"school"
  },
  studentProfile:{
-  type:String
+  type:String,
+  require:true
  }
 })
 const studentModel = mongoose.model('student', studentSchema)

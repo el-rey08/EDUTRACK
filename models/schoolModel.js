@@ -41,6 +41,7 @@ const schoolSchema = new mongoose.Schema({
     },
     schoolPicture:{
         type:String,
+        required: true
     }
 });
 

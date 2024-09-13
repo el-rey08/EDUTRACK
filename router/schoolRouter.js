@@ -21,7 +21,7 @@ const {
 const {authenticate,checkAdminOrTeacher,checkAdmin} = require("../middleware/auth");
 const { getOneTeacher } = require("../controller/teacherController");
 const router = express.Router();
-router.post("/sign_up",upload.single('schoolProfile'), signUpValidation, signUp);
+router.post("/sign_up",upload.single('schoolPicture'), signUpValidation, signUp);
 router.post("/log-in", logInValidator, signIn);
 router.get('/verify/:userToken', verifyEmail)
 router.post("/resend-verify", resendVerificationEmail);

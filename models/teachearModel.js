@@ -61,7 +61,8 @@ const teacherSchema = new mongoose.Schema({
         default: 'teacher'
     },
     teacherProfile:{
-        type:String
+        type:String,
+        require:true
     }
 });
 
