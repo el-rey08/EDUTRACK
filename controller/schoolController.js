@@ -32,7 +32,7 @@ exports.signUp = async (req, res) => {
         message: "All fields are required",
       });
     }
-    const existingSchool = await schoolModel.findOne({ schoolEmail });
+    const existingSchool = await schoolModel.findOne({ schoolEmail:schoolEmail.toLowerCase() });
     if (existingSchool) {
       return res.status(400).json({
         status: "Bad Request",
