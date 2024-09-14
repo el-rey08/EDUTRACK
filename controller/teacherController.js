@@ -170,7 +170,7 @@ exports.signIn = async (req, res) => {
         role: existingTeacher.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "13h" }
     );
 
     return res.status(200).json({

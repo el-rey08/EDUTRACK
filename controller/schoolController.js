@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const { schoolSignUpTemplate, verifyTemplate } = require("../helpers/template");
 const teacherModel = require("../models/teachearModel");
 const studentModel = require("../models/studentModel");
+const attendanceModel = require('../models/attendanceModel')
 const cloudinary = require('../utils/cloudinary')
 const fs = require('fs')
 const date = new Date();
@@ -92,11 +93,8 @@ exports.signUp = async (req, res) => {
 
 exports.signIn = async (req, res) => {
   try {
-    console.log('Testing Sign')
     const { schoolEmail, schoolPassword } = req.body;
-    console.log(schoolEmail)
     const existingSchool = await schoolModel.findOne({ schoolEmail:schoolEmail.toLowerCase() })
-    console.log(existingSchool)
     if (!existingSchool) {
       return res.status(404).json({
         status: "Not Found",
@@ -131,7 +129,7 @@ exports.signIn = async (req, res) => {
         schoolID: existingSchool.schoolID
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "13h" }
     );
     res.status(200).json({
       message: `${existingSchool.schoolName} is logged in`,
@@ -456,6 +454,60 @@ exports.updateProfile = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       status: 'Server Error',
+      message: error.message,
+    });
+  }
+};
+
+exports.getWeeklyAttendancePercentage = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const attendanceRecords = await attendanceModel.find({ school: userId });
+
+    if (!attendanceRecords || attendanceRecords.length === 0) {
+      return res.status(404).json({
+        status: "Not Found",
+        message: "No attendance records found for this school",
+      });
+    }
+    const weeklyAttendance = {};
+
+    attendanceRecords.forEach((record) => {
+      record.attendanceRecords.forEach((weekRecord) => {
+        const week = weekRecord.week;
+        if (!weeklyAttendance[week]) {
+          weeklyAttendance[week] = { present: 0, absent: 0, total: 0 };
+        }
+        Object.values(weekRecord.days).forEach((dayStatus) => {
+          if (dayStatus === 'present') {
+            weeklyAttendance[week].present += 1;
+          } else if (dayStatus === 'absent') {
+            weeklyAttendance[week].absent += 1;
+          }
+          weeklyAttendance[week].total += 1;
+        });
+      });
+    });
+    const weeklyPercentage = Object.keys(weeklyAttendance).map((week) => {
+      const data = weeklyAttendance[week];
+      const presentPercentage = Math.round((data.present / data.total) * 100);
+      const absentPercentage = Math.round((data.absent / data.total) * 100);
+
+      return {
+        week,
+        presentPercentage: `${presentPercentage}%`,
+        absentPercentage: `${absentPercentage}%`,
+      };
+    });
+    res.status(200).json({
+      status: "OK",
+      message: "Weekly attendance percentage calculated successfully",
+      data: weeklyPercentage,
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({
+      status: "Server Error",
       message: error.message,
     });
   }

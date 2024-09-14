@@ -17,6 +17,7 @@ const {
   deleteStudent,
   deleteTeacher,
   updateProfile,
+  getWeeklyAttendancePercentage,
 } = require("../controller/schoolController");
 const {authenticate,checkAdminOrTeacher,checkAdmin} = require("../middleware/auth");
 const { getOneTeacher } = require("../controller/teacherController");
@@ -34,4 +35,5 @@ router.get('/getOne-teacher', authenticate,checkAdmin,getOneTeacher)
 router.delete('/delete-student',authenticate,checkAdmin,deleteStudent)
 router.delete('/delete-teacher',authenticate,checkAdmin,deleteTeacher)
 router.put('/update-profile/:schoolID',upload.single('schoolProfile'),updateProfile)
+router.get('/percentage-record',authenticate, getWeeklyAttendancePercentage)
 module.exports = router;

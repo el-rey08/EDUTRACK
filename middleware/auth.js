@@ -20,7 +20,8 @@ const authenticate = async (req, res, next) => {
 
     next();
   } catch (error) {
-    return res.status(401).json({ message: "Invalid or expired token" });
+    console.error(error.message)
+    return res.status(401).json({ message: "please log-in again" });
   }
 };
 
@@ -53,7 +54,7 @@ const checkAdmin = async (req, res, next) => {
     if (!user || user.role !== 'admin') {
       return res.status(403).json({
         status: "Forbidden",
-        message: "Access denied. You must be a teacher to perform this action",
+        message: "Access denied. You must be an admin to perform this action",
       });
     }
 

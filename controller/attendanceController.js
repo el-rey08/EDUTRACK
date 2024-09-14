@@ -25,7 +25,7 @@ exports.takeAttendance = async (req, res) => {
       if (!School) {
         return res.status(400).json({ message: "Admin not found" });
       }
-      schoolID = School.school._id;
+      schoolID = School._id;
       schoolName = School.schoolName;
     } else {
       return res.status(403).json({ message: "Unauthorized user" });
@@ -92,7 +92,7 @@ exports.takeAttendance = async (req, res) => {
         ],
       });
     }
-
+console.log(attendance)
     await attendance.save();
 
     if (status === "absent" && student.email) {
@@ -128,9 +128,7 @@ exports.getStudentAttendance = async (req, res) => {
         message: "Student Not Found",
       });
     }
-    const attendanceRecords = await attendanceModel.find({
-      student: studentID,
-    });
+    const attendanceRecords = await attendanceModel.find({ student: studentID });
     if (!attendanceRecords || attendanceRecords.length === 0) {
       return res.status(400).json({
         status: "Bad Request",
@@ -138,33 +136,25 @@ exports.getStudentAttendance = async (req, res) => {
       });
     }
     const studentAttendance = attendanceRecords.map((attendance) => {
-      if (!attendance.attendanceRecords) {
-        console.error("Missing attendanceRecords:", attendance);
-        return {
-          studentName: attendance.studentName,
-          attendanceRecords: [],
-        };
-      }
       return {
-        studentName: attendance.studentName,
+        studentName: student.fullName, 
         attendanceRecords: attendance.attendanceRecords.map((record) => {
-          if (!record.days) {
-            return {
-              week: record.week,
-              days: {},
-            };
-          }
-          const daysObject = Object.fromEntries(
-            record.days.entries ? record.days.entries() : []
-          );
+          const days = record.days || {};
+          const populatedDays = Object.keys(days).length > 0 ? days : {
+            Monday: null,
+            Tuesday: null,
+            Wednesday: null,
+            Thursday: null,
+            Friday: null,
+          };
+
           return {
             week: record.week,
-            days: daysObject,
+            days: populatedDays,
           };
         }),
       };
     });
-
     res.status(200).json({
       status: "OK",
       message: "Student Attendance Retrieved Successfully",
@@ -178,12 +168,11 @@ exports.getStudentAttendance = async (req, res) => {
   }
 };
 
+
 exports.getAllStudentAttendance = async (req, res) => {
   try {
     const { schoolID } = req.params;
-    const attendanceRecords = await attendanceModel
-      .find({ school: schoolID })
-
+    const attendanceRecords = await attendanceModel.find({ school: schoolID });
     if (!attendanceRecords || attendanceRecords.length === 0) {
       return res.status(400).json({
         status: "Bad Request",
@@ -191,38 +180,27 @@ exports.getAllStudentAttendance = async (req, res) => {
       });
     }
     const formattedAttendance = attendanceRecords.map((record) => {
-      if (!record.attendanceRecords) {
-        return {
-          teacher: record.teacher,
-          date: record.date,
-          studentName: record.studentName,
-          attendanceRecords: [],
-        };
-      }
-
       return {
         teacher: record.teacher,
         date: record.date,
         studentName: record.studentName,
         attendanceRecords: record.attendanceRecords.map((att) => {
-          if (!att.days) {
-            return {
-              week: att.week,
-              days: {},
-            };
-          }
-          const daysObject = Object.fromEntries(
-            att.days.entries ? att.days.entries() : []
-          );
+          const days = att.days || {};
+          const populatedDays = Object.keys(days).length > 0 ? days : {
+            Monday: null,
+            Tuesday: null,
+            Wednesday: null,
+            Thursday: null,
+            Friday: null,
+          };
 
           return {
             week: att.week,
-            days: daysObject,
+            days: populatedDays,
           };
         }),
       };
     });
-
     res.status(200).json({
       status: "OK",
       message: "School attendance records retrieved successfully",
