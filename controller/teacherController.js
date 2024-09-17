@@ -10,9 +10,12 @@ const date = new Date();
 
 exports.signUp = async (req, res) => {
   const generateID = function () {
-    return Math.floor(Math.random() * 10000);
+    let id;
+    do {
+      id = Math.floor(Math.random() * 10000);
+    } while (id < 1000);
+    return id;
   };
-
   try {
     const {
       fullName,
@@ -23,6 +26,8 @@ exports.signUp = async (req, res) => {
       maritalStatus,
     } = req.body;
     const schoolID = req.user.schoolID;
+
+    // Validate required fields
     if (
       !fullName ||
       !address ||
@@ -36,6 +41,8 @@ exports.signUp = async (req, res) => {
         message: "Please, all fields are required",
       });
     }
+
+    // Check if the teacher already exists
     const existingTeacher = await teacherModel.findOne({ email: email.toLowerCase() });
     if (existingTeacher) {
       return res.status(400).json({
@@ -43,6 +50,8 @@ exports.signUp = async (req, res) => {
         message: "Teacher already exists",
       });
     }
+
+    // Find the school
     const school = await schoolModel.findOne({ schoolID });
     if (!school) {
       return res.status(400).json({
@@ -50,18 +59,43 @@ exports.signUp = async (req, res) => {
         message: `No school with id ${schoolID}`,
       });
     }
+
+    // Check subscription plan limits
+    const plans = {
+      freemium: 3,
+      starter: 5,
+      basic: 10,
+      pro: 25,
+      premium: 50,
+      enterprise: Infinity
+    };
+
+    const maxTeachersAllowed = plans[school.subscriptionPlan || 'freemium'];
+    if (school.teachers.length >= maxTeachersAllowed) {
+      return res.status(400).json({
+        status: "Bad request",
+        message: `You have reached the maximum number of teachers allowed for the ${school.subscriptionPlan} plan.`,
+      });
+    }
+
+    // Generate teacher ID and hash it as the password
     let teacherID = generateID();
     const saltedPassword = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(teacherID.toString(),saltedPassword);
+    const hashedPassword = await bcrypt.hash(teacherID.toString(), saltedPassword);
+
+    // Upload teacher profile picture to Cloudinary
     const file = req.file;
     if (!file) {
       return res.status(400).json({
         message: "Teacher profile is required",
       });
     }
+
     const image = await cloudinary.uploader.upload(req.file.path);
+
+    // Create the teacher
     const data = new teacherModel({
-      fullName:fullName.trim(),
+      fullName: fullName.trim(),
       address,
       email: email.toLowerCase(),
       password: hashedPassword,
@@ -73,6 +107,7 @@ exports.signUp = async (req, res) => {
       teacherProfile: image.secure_url,
     });
 
+    // Delete the file from local storage
     fs.unlink(file.path, (error) => {
       if (error) {
         console.error("Error deleting the file from local storage:", error);
@@ -81,27 +116,32 @@ exports.signUp = async (req, res) => {
       }
     });
 
+    // Generate JWT token for email verification
     const userToken = jwt.sign(
       { id: data.teacherID, email: data.email },
       process.env.JWT_SECRET,
       { expiresIn: "30min" }
     );
 
+    // Send email verification link
     const verifyLink = `https://edutrack-jlln.onrender.com/api/v1/teacher/verify/${userToken}`;
-
     let mailOptions = {
       email: data.email,
       subject: "Email Verification",
       html: teacherSignUpTemplate(verifyLink, `${data.fullName}`, `${data.teacherID}`),
     };
+
+    // Save the teacher to the database
     await data.save();
     school.teachers.push(data._id);
     await school.save();
+
+    // Send verification email
     await sendMail(mailOptions);
+
     res.status(201).json({
       status: "ok",
-      message:
-        "Registration complete. Your teacher ID is your initial password.",
+      message: "Registration complete. Your teacher ID is your initial password.",
       data,
     });
   } catch (error) {
@@ -111,6 +151,7 @@ exports.signUp = async (req, res) => {
     });
   }
 };
+
 
 exports.signIn = async (req, res) => {
   try {

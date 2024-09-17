@@ -11,9 +11,12 @@ const date = new Date();
 
 exports.signUp = async (req, res) => {
   const generateID = function () {
-    return Math.floor(Math.random() * 10000);
+    let id;
+    do {
+      id = Math.floor(Math.random() * 10000);
+    } while (id < 1000);
+    return id;
   };
-
   try {
     const { 
       fullName, 
@@ -21,30 +24,29 @@ exports.signUp = async (req, res) => {
       address, 
       gender, 
       class: studentClass,
-
     } = req.body;
+    
     const studentID = generateID();
     const schoolID = req.user.schoolID; 
-    if (
-      !fullName || 
-      !email || 
-      !address || 
-      !gender || 
-      !studentClass
-    ) {
+
+    // Validate required fields
+    if (!fullName || !email || !address || !gender || !studentClass) {
       return res.status(400).json({
         status: "Bad request",
         message: "Please, all fields are required",
       });
     }
+
+    // Check if the student already exists
     const existingUser = await studentModel.findOne({ studentID });
     if (existingUser) {
       return res.status(400).json({
         status: "Bad request",
-        message: "Student With This ID Already Exist",
+        message: "Student with this ID already exists",
       });
     }
 
+    // Find the school
     const school = await schoolModel.findOne({ schoolID });
     if (!school) {
       return res.status(400).json({
@@ -52,16 +54,36 @@ exports.signUp = async (req, res) => {
         message: `No school with id ${schoolID}`,
       });
     }
-    // const saltedPassword = await bcrypt.genSalt(10);
-    // const hashedPassword = await bcrypt.hash(studentID.toString(), saltedPassword);
 
+    // Check subscription plan limits
+    const plans = {
+      freemium: 5,
+      starter: 100,
+      basic: 200,
+      pro: 500,
+      premium: 1000,
+      enterprise: Infinity // Unlimited
+    };
+
+    const maxStudentsAllowed = plans[school.subscriptionPlan || 'freemium'];
+    if (school.students.length >= maxStudentsAllowed) {
+      return res.status(400).json({
+        status: "Bad request",
+        message: `You have reached the maximum number of students allowed for the ${school.subscriptionPlan} plan.`,
+      });
+    }
+
+    // Upload student profile picture to Cloudinary
     const file = req.file;
     if (!file) {
       return res.status(400).json({
         message: "Student picture is required",
       });
     }
+
     const image = await cloudinary.uploader.upload(req.file.path);
+
+    // Create the student
     const data = new studentModel({
       fullName: fullName.trim(),
       email: email.toLowerCase().trim(),
@@ -73,6 +95,7 @@ exports.signUp = async (req, res) => {
       studentProfile: image.secure_url,
     });
 
+    // Delete the file from local storage
     fs.unlink(file.path, (err) => {
       if (err) {
         console.error("Error deleting the file from local storage:", err);
@@ -81,12 +104,14 @@ exports.signUp = async (req, res) => {
       }
     });
 
+    // Generate JWT token for email verification
     const userToken = jwt.sign(
       { id: data.studentID, email: data.email },
       process.env.JWT_SECRET,
       { expiresIn: "30 mins" }
     );
 
+    // Send email verification link
     const verifyLink = `https://edutrack-jlln.onrender.com/api/v1/student/verify/${userToken}`;
     const template = studentSignUpTemplate(verifyLink, `${data.fullName}`, `${data.studentID}`);
 
@@ -96,9 +121,12 @@ exports.signUp = async (req, res) => {
       html: template,
     };
 
+    // Save the student to the database
     await data.save();
     school.students.push(data._id);
     await school.save();
+
+    // Send verification email
     await sendMail(mailOptions);
 
     res.status(201).json({

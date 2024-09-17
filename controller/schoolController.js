@@ -12,8 +12,13 @@ const date = new Date();
 
 exports.signUp = async (req, res) => {
   const generateID = function () {
-    return Math.floor(1000 + Math.random() * 9000);
+    let id;
+    do {
+      id = Math.floor(Math.random() * 10000);
+    } while (id < 1000);
+    return id;
   };
+  
   try {
     const {
       schoolName,
@@ -512,3 +517,61 @@ exports.getWeeklyAttendancePercentage = async (req, res) => {
     });
   }
 };
+
+
+exports.upgradeSubscriptionPlan = async (req, res) => {
+  // Define plan limits for reference
+  const plans = {
+    freemium: { maxTeachers: 3, maxStudents: 5 },
+    starter: { maxTeachers: 5, maxStudents: 100 },
+    basic: { maxTeachers: 10, maxStudents: 250 },
+    pro: { maxTeachers: 25, maxStudents: 500 },
+    premium: { maxTeachers: 50, maxStudents: 1000 },
+    enterprise: { maxTeachers: Infinity, maxStudents: Infinity } // Unlimited
+  };
+
+  try {
+    const { userId } = req.user; // Assuming userId is the school's ID in req.user
+    const { newPlan } = req.body;
+
+    // Fetch the school by its ID
+    const school = await schoolModel.findOne({ _id: userId });
+
+    if (!school) {
+      return res.status(404).json({
+        success: false,
+        message: 'School not found.'
+      });
+    }
+
+    // Check if the new plan is valid
+    if (!plans[newPlan]) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid subscription plan.'
+      });
+    }
+
+    // Update the school's subscription details
+    school.subscriptionPlan = newPlan;
+    school.maxTeachers = plans[newPlan].maxTeachers;
+    school.maxStudents = plans[newPlan].maxStudents;
+
+    // Set subscription dates
+    school.subscriptionStartDate = new Date(); // Current date as the start date
+    school.subscriptionEndDate = new Date(new Date().setMonth(new Date().getMonth() + 3)); // 3 months from the start date
+
+    await school.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Subscription plan upgraded to ${newPlan} successfully, valid for 3 months.`
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+

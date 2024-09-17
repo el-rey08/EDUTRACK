@@ -1,5 +1,5 @@
-
 const mongoose = require('mongoose');
+
 const schoolSchema = new mongoose.Schema({
     schoolName: {
         type: String,
@@ -39,9 +39,39 @@ const schoolSchema = new mongoose.Schema({
         type: String,
         default: 'admin'
     },
-    schoolPicture:{
-        type:String,
+    schoolPicture: {
+        type: String,
         required: true
+    },
+
+    // New fields for payment and plan
+    subscriptionPlan: {
+        type: String,
+        enum: ['freemium', 'starter', 'basic', 'pro', 'premium', 'enterprise'],
+        default: 'freemium' // Default plan
+    },
+    maxStudents: {
+        type: Number,
+        default: 5 // Default to Freemium limit
+    },
+    maxTeachers: {
+        type: Number,
+        default: 3 // Default to Freemium limit
+    },
+    paymentStatus: {
+        type: String,
+        enum: ['active', 'inactive', 'pending', 'canceled'],
+        default: 'inactive'
+    },
+    subscriptionStartDate: {
+        type: Date
+    },
+    subscriptionEndDate: {
+        type: Date
+    },
+    customPrice: {
+        type: Number,
+        default: 0 // Only used if the plan is 'enterprise'
     }
 });
 
