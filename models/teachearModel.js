@@ -23,6 +23,10 @@ const teacherSchema = new mongoose.Schema({
     teacherClass: {
         type: String,
         required: true,
+        enum: [
+            'JSS 1', 'JSS 2', 'JSS 3',
+            'SS 1', 'SS 2', 'SS 3'
+        ],
       },
     address: {
         type: String,
