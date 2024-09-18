@@ -128,7 +128,7 @@ exports.signIn = async (req, res) => {
         schoolID: existingSchool.schoolID,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "13h" }
+      { expiresIn: "1d" }
     );
     res.status(200).json({
       message: `${existingSchool.schoolName} is logged in`,

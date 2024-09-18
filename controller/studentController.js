@@ -174,7 +174,7 @@ exports.signIn = async (req, res) => {
         role: 'student',
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "1d" }
     );
 
     return res.status(200).json({

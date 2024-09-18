@@ -212,7 +212,7 @@ exports.signIn = async (req, res) => {
         role: existingTeacher.role,
       },
       process.env.JWT_SECRET,
-      { expiresIn: "13h" }
+      { expiresIn: "1d" }
     );
 
     return res.status(200).json({
