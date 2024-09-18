@@ -15,7 +15,7 @@ exports.signUp = async (req, res) => {
     do {
       id = Math.floor(Math.random() * 10000);
     } while (id < 1000);
-    return `EDU${id}`; 
+    return id; 
   };
   
   try {
