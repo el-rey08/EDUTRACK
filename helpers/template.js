@@ -292,7 +292,7 @@ const teacherSignUpTemplate = (verifyLink, firstName, teacherID) => {
   <div class="content">
     <p>Hello ${firstName},</p>
     <p>Thank you for joining our community! We're thrilled to have you on board.</p>
-    <p>Your initial password is your student ID: <strong>${teacherID}</strong> you can change it to your prefered password after you log in</p>
+    <p>Your initial password is your teacher ID: <strong>${teacherID}</strong> you can change it to your prefered password after you log in</p>
     <p>Please click the button below to verify your account:</p>
     <p>
       <a href="${verifyLink}" class="button">Verify My Account</a>
