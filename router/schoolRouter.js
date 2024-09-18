@@ -35,7 +35,7 @@ router.get('/getOne-student', authenticate,checkAdmin,checkAdminOrTeacher,getOne
 router.get('/getOne-teacher', authenticate,checkAdmin,getOneTeacher)
 router.delete('/delete-student',authenticate,checkAdmin,deleteStudent)
 router.delete('/delete-teacher',authenticate,checkAdmin,deleteTeacher)
-router.put('/update-profile/:schoolID',upload.single('schoolProfile'),updateProfile)
+router.put('/update-profile/:schoolID',upload.single('schoolPicture'),updateProfile)
 router.get('/percentage-record',authenticate, getWeeklyAttendancePercentage)
 router.post('/upgrade-plan', authenticate,upgradeSubscriptionPlan)
 module.exports = router;
