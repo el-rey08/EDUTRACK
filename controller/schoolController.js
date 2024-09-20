@@ -275,7 +275,7 @@ exports.deleteStudent = async (req, res) => {
 exports.deleteTeacher = async (req, res) => {
   try {
     const { userId } = req.user;
-    const { teacherID } = req.body;
+    const { teacherID } = req.params;
     const school = await schoolModel
       .findOne({ _id: userId })
       .populate("teachers");
