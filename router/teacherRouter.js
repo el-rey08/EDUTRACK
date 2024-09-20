@@ -6,7 +6,7 @@ const { checkAdmin, authenticate, checkAdminOrTeacher } = require('../middleware
 const router = express.Router()
 router.post('/sign-up',upload.single('teacherProfile'),singUpVlidator, authenticate, checkAdmin, signUp);
 router.post('/sign-in',logInValidator,signIn)
-router.get('/verify/:userToken', verifyEmail)
+router.post('/verify/:userToken', verifyEmail)
 router.get('/resend-link',authenticate,checkAdminOrTeacher, resendVerificationEmail)
 router.put('/update-profile/:teacherID',upload.single('teacherProfile'), updateProfile)
 router.post('/forget-password', forgetPassword)
