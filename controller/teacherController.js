@@ -304,7 +304,7 @@ exports.resendVerificationEmail = async (req, res) => {
 exports.forgetPassword = async (req, res) => {
   try {
     const { email } = req.body;
-    const teacher = await teacherModel.findOne({ email });
+    const teacher = await teacherModel.findOne({ email:email.toLowerCase() });
     if (!teacher) {
       res.status(404).json({
         message: "Teacher not found",

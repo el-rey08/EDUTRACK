@@ -385,7 +385,7 @@ exports.resendVerificationEmail = async (req, res) => {
 exports.forgetPassword = async (req, res) => {
   try {
     const { schoolEmail } = req.body;
-    const school = await schoolModel.findOne({ schoolEmail:schoolEmail });
+    const school = await schoolModel.findOne({ schoolEmail:schoolEmail.toLowerCase() });
     if (!school) {
       return res.status(404).json({
         message: "school not found",
@@ -401,7 +401,7 @@ exports.forgetPassword = async (req, res) => {
     let mailOptions = {
       email: school.schoolEmail,
       subject: "password reset",
-      html: `please click the link to reset your password: <a href="https://edutrack-jlln.onrender.com/api/v1/school/forget-password/${resetToken}>Reset password</a>link expiers in 30min"`,
+      html: `please click the link to reset your password: <a href="https://edu-track-two.vercel.app/#/restpassword/${resetToken}>Reset password</a>link expiers in 30min"`,
     };
     await sendMail(mailOptions);
     res.status(200).json({
