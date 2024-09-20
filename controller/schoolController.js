@@ -33,7 +33,7 @@ exports.signUp = async (req, res) => {
     if (existingSchool) {
       return res.status(400).json({
         status: "Bad Request",
-        message: "This school already exists",
+        message: "school With This Email already exists",
       });
     }
     const saltedPassword = await bcrypt.genSalt(10);

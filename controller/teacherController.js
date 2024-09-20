@@ -48,7 +48,7 @@ exports.signUp = async (req, res) => {
     if (existingTeacher) {
       return res.status(400).json({
         status: "Bad request",
-        message: "Teacher already exists",
+        message: "Teacher With This Email already exists",
       });
     }
 
