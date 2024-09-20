@@ -66,7 +66,7 @@ exports.signUp = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "30 mins" }
     );
-    const verifyLink = `https://edutrack-jlln.onrender.com/api/v1/school/verify/${userToken}`;
+    const verifyLink = `https://edutrack-livid.vercel.app/#/verify/${userToken}`;
 
     let mailOptions = {
       email: newData.schoolEmail,

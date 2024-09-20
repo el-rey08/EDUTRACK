@@ -7,7 +7,7 @@ const authenticate = async (req, res, next) => {
   try {
     const auth = req.headers.authorization;
     if (!auth) {
-      return res.status(401).json({ message: "Authorization  now required" });
+      return res.status(401).json({ message: "Authorization required" });
     }
 
     const token = auth.split(" ")[1];
