@@ -157,8 +157,6 @@ exports.signUp = async (req, res) => {
 exports.signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    // Check if teacher exists
     const existingTeacher = await teacherModel.findOne({ email:email.toLowerCase() });
     if (!existingTeacher) {
       return res.status(404).json({
@@ -166,16 +164,18 @@ exports.signIn = async (req, res) => {
         message: "Teacher not found",
       });
     }
-
-    // Check if teacher is verified before password validation
     if (!existingTeacher.isVerified) {
       return res.status(400).json({
         status: "Bad request",
         message: "Teacher is not verified. Please check your email for verification link.",
       });
     }
-
-    // Check if the password is the initial teacherID password
+    if(existingTeacher.status === 'suspend'){
+      return res.status(401).json({
+        status: false,
+        message:`dear${existingTeacher.fullName} you cannot log in due to suspention please see the school admin`
+      })
+    }
     if (password === existingTeacher.teacherID) {
       const userToken = jwt.sign(
         {
@@ -194,7 +194,6 @@ exports.signIn = async (req, res) => {
       });
     }
 
-    // Compare hashed password for regular login
     const checkPassword = await bcrypt.compare(password, existingTeacher.password);
     if (!checkPassword) {
       return res.status(400).json({
@@ -202,8 +201,6 @@ exports.signIn = async (req, res) => {
         message: "Incorrect password. Please check your password.",
       });
     }
-
-    // Generate a token if the login is successful
     const userToken = jwt.sign(
       {
         userId: existingTeacher._id,
@@ -381,6 +378,46 @@ exports.getOneTeacher = async (req, res) => {
     res.status(500).json(error.message);
   }
 };
+
+exports.suspendTeacher = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const { teacherID } = req.params;
+    const school = await schoolModel.findOne({ _id: userId })
+
+    if (!school) {
+      return res.status(404).json({
+        status: 'Not Found',
+        message: 'School not found',
+      });
+    }
+    const teacher = await teacherModel.findOne({ teacherID, school: school._id });
+    if (!teacher) {
+      return res.status(404).json({
+        status: 'Not Found',
+        message: 'Teacher not found in this school',
+      });
+    }
+    teacher.status = 'suspend';
+    await teacher.save();
+
+    return res.status(200).json({
+      status: 'Success',
+      message: `Teacher ${teacher.fullName} has been suspended.`,
+      teacher: {
+        id: teacher.teacherID,
+        fullName: teacher.fullName,
+        status: teacher.status,
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'Server Error',
+      message: error.message,
+    });
+  }
+};
+
 
 exports.updateProfile = async (req, res) => {
   try {

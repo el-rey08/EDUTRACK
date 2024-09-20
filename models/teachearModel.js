@@ -38,6 +38,12 @@ const teacherSchema = new mongoose.Schema({
         required: true,
         enum: ['male', 'female']
     },
+
+    status: { 
+        type: String, 
+        enum: ['active', 'suspend', 'unsuspend'], 
+        default: 'active'
+      },
     
     maritalStatus: {
         type: String,
