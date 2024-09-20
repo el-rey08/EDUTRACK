@@ -125,7 +125,7 @@ exports.signUp = async (req, res) => {
     );
 
     // Send email verification link
-    const verifyLink = `https://edutrack-jlln.onrender.com/api/v1/teacher/verify/${userToken}`;
+    const verifyLink = `https://edutrack-livid.vercel.app/#/verify/verifyteacher/${userToken}`;
     let mailOptions = {
       email: data.email,
       subject: "Email Verification",
