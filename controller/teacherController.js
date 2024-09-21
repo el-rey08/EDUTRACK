@@ -125,7 +125,7 @@ exports.signUp = async (req, res) => {
     );
 
     // Send email verification link
-    const verifyLink = `https://edu-track-two.vercel.app/#/verify/verifyteacher/${userToken}`;
+    const verifyLink = `https://edu-track-two.vercel.app/#/verifyteacher/${userToken}`;
     let mailOptions = {
       email: data.email,
       subject: "Email Verification",
