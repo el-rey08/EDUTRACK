@@ -21,7 +21,7 @@ const {
   upgradeSubscriptionPlan,
 } = require("../controller/schoolController");
 const {authenticate,checkAdminOrTeacher,checkAdmin} = require("../middleware/auth");
-const { getOneTeacher, suspendTeacher } = require("../controller/teacherController");
+const { getOneTeacher, suspendTeacher, getSuspendedTeachers } = require("../controller/teacherController");
 const router = express.Router();
 router.post("/sign_up",upload.single('schoolPicture'), signUpValidation, signUp);
 router.post("/log-in", logInValidator, signIn);
@@ -38,5 +38,6 @@ router.delete('/delete-teacher/:teacherID',authenticate,checkAdmin,deleteTeacher
 router.put('/update-profile/:schoolID',upload.single('schoolPicture'),updateProfile)
 router.get('/percentage-record',authenticate, getWeeklyAttendancePercentage)
 router.post('/upgrade-plan', authenticate,upgradeSubscriptionPlan)
-router.get('/suspend-teacher/:teacherID', authenticate,checkAdmin,suspendTeacher)
+router.post('/suspend-teacher/:teacherID', authenticate,checkAdmin,suspendTeacher)
+router.get('/the-suspended',authenticate,checkAdmin,getSuspendedTeachers)
 module.exports = router;

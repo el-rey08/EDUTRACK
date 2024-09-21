@@ -418,6 +418,46 @@ exports.suspendTeacher = async (req, res) => {
   }
 };
 
+exports.getSuspendedTeachers = async (req, res) => {
+  try {
+    const { userId } = req.user; 
+    const school = await schoolModel.findOne({ _id: userId });
+
+    if (!school) {
+      return res.status(404).json({
+        status: 'Not Found',
+        message: 'School not found',
+      });
+    }
+    const suspendedTeachers = await teacherModel.find({
+      school: school._id, 
+      status: 'suspend' 
+    });
+
+    if (suspendedTeachers.length === 0) {
+      return res.status(404).json({
+        status: 'Not Found',
+        message: 'No suspended teachers found',
+      });
+    }
+
+    return res.status(200).json({
+      status: 'Success',
+      count: suspendedTeachers.length,
+      teachers: suspendedTeachers.map(teacher => ({
+        id: teacher.teacherID,
+        fullName: teacher.fullName,
+        status: teacher.status,
+      })),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: 'Server Error',
+      message: error.message,
+    });
+  }
+};
+
 
 exports.updateProfile = async (req, res) => {
   try {
