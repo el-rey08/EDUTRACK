@@ -150,7 +150,7 @@ exports.signIn = async (req, res) => {
     const existingStudent = await studentModel.findOne({ 
       email: email.toLowerCase(), 
       studentID 
-    });
+    }).populate('school');
 
     if (!existingStudent) {
       return res.status(404).json({
