@@ -173,7 +173,7 @@ exports.signIn = async (req, res) => {
     if(existingTeacher.status === 'suspend'){
       return res.status(401).json({
         status: false,
-        message:`dear ${existingTeacher.fullName} you cannot log in due to suspention please see the school admin`
+        message:`dear ${existingTeacher.fullName} you cannot log in due to suspension please see the school admin`
       })
     }
     if (password === existingTeacher.teacherID) {
