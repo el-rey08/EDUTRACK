@@ -207,7 +207,7 @@ exports.getAllStudents = async (req, res) => {
   try {
     const { userId } = req.user;
     const school = await schoolModel
-      .findOne({ _id: userId })
+      .findOne({ userId })
       .populate("students");
     if (!school) {
       return res.status(404).json({
@@ -240,7 +240,7 @@ exports.deleteStudent = async (req, res) => {
     const { userId } = req.user;
     const { studentID } = req.body;
     const school = await schoolModel
-      .findOne({ _id: userId })
+      .findOne({  userId })
       .populate("students");
     if (!school) {
       return res.status(404).json({

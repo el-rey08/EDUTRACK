@@ -92,7 +92,6 @@ exports.takeAttendance = async (req, res) => {
         ],
       });
     }
-console.log(attendance)
     await attendance.save();
 
     if (status === "absent" && student.email) {
