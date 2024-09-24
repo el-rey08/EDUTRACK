@@ -120,7 +120,7 @@ function getWeekNumber(date) {
 exports.getStudentAttendance = async (req, res) => {
   try {
     const { studentID } = req.params;
-    const student = await studentModel.findOne({studentID});
+    const student = await studentModel.findById(studentID);
     if (!student) {
       return res.status(404).json({
         status: "Not Found",
@@ -128,6 +128,57 @@ exports.getStudentAttendance = async (req, res) => {
       });
     }
     const attendanceRecords = await attendanceModel.find({ student: studentID });
+    if (!attendanceRecords || attendanceRecords.length === 0) {
+      return res.status(400).json({
+        status: "Bad Request",
+        message: "Student Attendance Record not Found",
+      });
+    }
+    const studentAttendance = attendanceRecords.map((attendance) => {
+      return {
+        studentName: student.fullName, 
+        attendanceRecords: attendance.attendanceRecords.map((record) => {
+          const days = record.days || {};
+          const populatedDays = Object.keys(days).length > 0 ? days : {
+            Monday: null,
+            Tuesday: null,
+            Wednesday: null,
+            Thursday: null,
+            Friday: null,
+          };
+
+          return {
+            week: record.week,
+            days: populatedDays,
+          };
+        }),
+      };
+    });
+    res.status(200).json({
+      status: "OK",
+      message: "Student Attendance Retrieved Successfully",
+      data: studentAttendance,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "Server Error",
+      message: error.message,
+    });
+  }
+};
+
+
+exports.myAttendance = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const student = await studentModel.findById(userId);
+    if (!student) {
+      return res.status(404).json({
+        status: "Not Found",
+        message: "Student Not Found",
+      });
+    }
+    const attendanceRecords = await attendanceModel.find({ student: userId});
     if (!attendanceRecords || attendanceRecords.length === 0) {
       return res.status(400).json({
         status: "Bad Request",
