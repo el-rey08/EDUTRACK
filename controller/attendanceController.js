@@ -120,7 +120,7 @@ function getWeekNumber(date) {
 exports.getStudentAttendance = async (req, res) => {
   try {
     const { studentID } = req.params;
-    const student = await studentModel.findById(studentID);
+    const student = await studentModel.findOne({studentID});
     if (!student) {
       return res.status(404).json({
         status: "Not Found",
