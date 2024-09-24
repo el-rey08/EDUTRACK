@@ -168,7 +168,7 @@ exports.signIn = async (req, res) => {
 
     const userToken = jwt.sign(
       {
-        userId: existingStudent.studentID,
+        userId: existingStudent._id,
         email: existingStudent.email,
         name: existingStudent.fullName,
         role: 'student',
