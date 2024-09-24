@@ -93,7 +93,7 @@ exports.signIn = async (req, res) => {
     const { schoolEmail, schoolPassword } = req.body;
     const existingSchool = await schoolModel.findOne({
       schoolEmail: schoolEmail.toLowerCase(),
-    });
+    }).populate('teachers').populate('students');
     if (!existingSchool) {
       return res.status(404).json({
         status: "Not Found",
@@ -206,8 +206,10 @@ exports.getAllTeachers = async (req, res) => {
 exports.getAllStudents = async (req, res) => {
   try {
     const { userId } = req.user;
+    console.log(userId);
+    
     const school = await schoolModel
-      .findOne({ userId })
+      .findById(userId )
       .populate("students");
     if (!school) {
       return res.status(404).json({
