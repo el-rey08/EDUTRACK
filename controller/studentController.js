@@ -171,7 +171,7 @@ exports.signIn = async (req, res) => {
         userId: existingStudent._id,
         email: existingStudent.email,
         name: existingStudent.fullName,
-        role: 'student',
+        role: existingStudent.role,
       },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
